@@ -1,4 +1,4 @@
-package time_based
+package persistor
 
 import (
 	"github.com/abdulrahmank/job_executor/time_based/mocks"

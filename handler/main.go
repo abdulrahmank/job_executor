@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/abdulrahmank/job_executor/time_based"
 	"github.com/abdulrahmank/job_executor/time_based/dao"
+	"github.com/abdulrahmank/job_executor/time_based/persistor"
 	"log"
 	"net/http"
 	"strconv"
@@ -29,7 +29,7 @@ func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 		if _, err = file.Read(contents); err != nil {
 			log.Println("Error reading file contents")
 		}
-		persistor := time_based.Persistor{FileDao: &dao.FileDaoImpl{}, SettingDao: &dao.JobSettingDaoImpl{}}
+		persistor := persistor.Persistor{FileDao: &dao.FileDaoImpl{}, SettingDao: &dao.JobSettingDaoImpl{}}
 		persistor.SaveJob(jobName, timeSlots, daysInWeek, fileHeader.Filename, numberOfWeeks, contents)
 		w.WriteHeader(http.StatusOK)
 		if _, err := w.Write([]byte("Job saved successfully")); err != nil {
