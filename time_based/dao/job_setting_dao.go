@@ -3,6 +3,7 @@ package dao
 import (
 	"database/sql"
 	"fmt"
+	"github.com/lib/pq"
 	"log"
 	"strings"
 
@@ -36,8 +37,10 @@ func (j *JobSettingDaoImpl) SaveJob(jobName, timeSlots, daysInWeek, fileName str
 	}
 	tx, _ := db.Begin()
 	defer tx.Commit()
+	timeSlotSlice := strings.Split(timeSlots, ",")
+	daysInWeekSlice := strings.Split(daysInWeek, ",")
 	result, e := tx.Exec(
-		"INSERT INTO job_settings (job_name, time_slots, days, file_name, remaining_weeks) VALUES ($1, $2, $3, $4, $5)", jobName, strings.Split(timeSlots, ","), strings.Split(daysInWeek, ","), fileName, numberOfWeeks)
+		"INSERT INTO job_settings (job_name, time_slots, days, file_name, remaining_weeks) VALUES ($1, $2, $3, $4, $5)", jobName, pq.Array(timeSlotSlice), pq.Array(daysInWeekSlice), fileName, numberOfWeeks)
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}
@@ -52,4 +55,3 @@ func getPSQlInfo(user, dbName, password string) string {
 		"localhost", 5432, user, dbName, password)
 	return psqlInfo
 }
-

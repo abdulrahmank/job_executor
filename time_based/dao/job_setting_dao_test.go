@@ -2,6 +2,8 @@ package dao
 
 import (
 	"database/sql"
+	"github.com/lib/pq"
+	"log"
 	"testing"
 )
 
@@ -17,10 +19,13 @@ func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
 		dao.SaveJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks)
 
 		db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
-		rows, _ := db.Query("SELECT * FROM job_settings WHERE job_name = helloworld")
+		rows, _ := db.Query("SELECT * FROM job_settings WHERE job_name = 'helloWorld'")
 
-		settings := &JobSettings{}
-		_ = rows.Scan(settings)
+		settings := JobSettings{}
+		rows.Next()
+		if e := rows.Scan(&settings.Id, &settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.FileName, &settings.NumberOfWeeks); e != nil {
+			log.Fatal(e)
+		}
 
 		if settings.TimeSlots[0] != "20:00" &&  settings.TimeSlots[1] != "10:00" {
 			t.Error("Time mismatch")
