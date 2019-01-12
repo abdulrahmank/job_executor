@@ -8,7 +8,7 @@ import (
 )
 
 type Executor interface {
-	ExecuteJob(jobName, fileName string) ([]byte, error)
+	ExecuteJob(fileName string) ([]byte, error)
 }
 
 type BashExecutorImp struct{}
