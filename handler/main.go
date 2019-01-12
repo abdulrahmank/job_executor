@@ -21,7 +21,7 @@ func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Invalid number of weeks")
 		}
-		file, fileHeader , err := r.FormFile("script")
+		file, fileHeader, err := r.FormFile("script")
 		if err != nil {
 			log.Println("Error parsing file")
 		}
@@ -31,6 +31,10 @@ func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 		}
 		persistor := time_based.Persistor{FileDao: &dao.FileDaoImpl{}, SettingDao: &dao.JobSettingDaoImpl{}}
 		persistor.SaveJob(jobName, timeSlots, daysInWeek, fileHeader.Filename, numberOfWeeks, contents)
+		w.WriteHeader(http.StatusOK)
+		if _, err := w.Write([]byte("Job saved successfully")); err != nil {
+			log.Fatal("Unable to wrtie to response")
+		}
 		break
 	case "GET":
 		log.Println("Not implemented")
@@ -39,6 +43,5 @@ func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Not implemented")
 		break
 	}
-
 
 }
