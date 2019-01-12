@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/abdulrahmank/job_executor/time_based"
+	"github.com/abdulrahmank/job_executor/time_based/dao"
 	"log"
 	"net/http"
 	"strconv"
@@ -20,11 +21,16 @@ func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Invalid number of weeks")
 		}
-		file, _ , err := r.FormFile("script")
+		file, fileHeader , err := r.FormFile("script")
 		if err != nil {
 			log.Println("Error parsing file")
 		}
-		time_based.SaveJob(jobName, timeSlots, daysInWeek, numberOfWeeks, file)
+		var contents []byte
+		if _, err = file.Read(contents); err != nil {
+			log.Println("Error reading file contents")
+		}
+		persistor := time_based.Persistor{FileDao: &dao.FileDaoImpl{}, SettingDao: &dao.JobSettingDaoImpl{}}
+		persistor.SaveJob(jobName, timeSlots, daysInWeek, fileHeader.Filename, numberOfWeeks, contents)
 		break
 	case "GET":
 		log.Println("Not implemented")
