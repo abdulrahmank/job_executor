@@ -13,6 +13,9 @@ type FileDaoImpl struct {}
 
 func (f *FileDaoImpl) SaveFile(jobFileName string, contents []byte) {
 	file, e := os.Create(jobFileName)
+	if e = os.Chmod(jobFileName, 777); e != nil {
+		log.Fatal("Unable to change file mode")
+	}
 	if e != nil {
 		log.Fatal("Unable to create file")
 	}
