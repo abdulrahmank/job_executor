@@ -13,6 +13,7 @@ import (
 type JobSettingDao interface {
 	SaveJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int)
 	GetJobFor(day string) []JobSettings
+	SetJobStatus(jobName, status string)
 }
 
 type JobSettingDaoImpl struct{}
@@ -73,6 +74,16 @@ func (j *JobSettingDaoImpl) GetJobFor(day string) []JobSettings {
 		jobs = append(jobs, j)
 	}
 	return jobs
+}
+
+func (j *JobSettingDaoImpl) SetJobStatus(jobName, status string) {
+	if e := getDB(); e != nil {
+		return
+	}
+	_, e := db.Exec("UPDATE job_status SET status=$1 WHERE job_name=$2", status, jobName)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
 }
 
 func getDB() error {

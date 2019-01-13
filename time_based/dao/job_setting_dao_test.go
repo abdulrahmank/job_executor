@@ -97,3 +97,27 @@ func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
 		}
 	})
 }
+
+func TestJobSettingDaoImpl_SetJobStatus(t *testing.T) {
+	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
+	db.Exec("TRUNCATE job_settings")
+	db.Exec("TRUNCATE job_status")
+	dao := JobSettingDaoImpl{}
+	dao.SaveJob("1", "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
+
+	dao.SetJobStatus("1", STATUS_SCHEDULED)
+
+	statusRows, _ := db.Query("SELECT * FROM job_status")
+
+	statusRows.Next()
+	var jobNameStatus, status string
+	if e := statusRows.Scan(&jobNameStatus, &status); e != nil {
+		log.Fatalf("%v\n", e)
+	}
+	if jobNameStatus != "1" {
+		t.Error("Job name mismatch")
+	}
+	if status != STATUS_SCHEDULED {
+		t.Errorf("Expected %s but was %s", STATUS_SCHEDULED, status)
+	}
+}
