@@ -12,7 +12,7 @@ import (
 
 type JobSettingDao interface {
 	SaveJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int)
-	GetJobFor(day string) []JobSettings
+	GetJobsFor(day string) []JobSettings
 	SetJobStatus(jobName, status string)
 }
 
@@ -55,7 +55,7 @@ func (j *JobSettingDaoImpl) SaveJob(jobName, timeSlots, daysInWeek, fileName str
 	}
 }
 
-func (j *JobSettingDaoImpl) GetJobFor(day string) []JobSettings {
+func (j *JobSettingDaoImpl) GetJobsFor(day string) []JobSettings {
 	if e := getDB(); e != nil {
 		return nil
 	}

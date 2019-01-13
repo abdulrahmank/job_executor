@@ -14,7 +14,7 @@ type JobOrchestrator struct {
 
 func (j *JobOrchestrator) SyncJobs() {
 	today := time.Now().Weekday().String()
-	jobsForToday := j.SettingsDao.GetJobFor(today)
+	jobsForToday := j.SettingsDao.GetJobsFor(today)
 
 	for _, job := range jobsForToday {
 		for _, timeSlot := range job.TimeSlots {

@@ -33,18 +33,18 @@ func (m *MockJobSettingDao) EXPECT() *MockJobSettingDaoMockRecorder {
 	return m.recorder
 }
 
-// GetJobFor mocks base method
-func (m *MockJobSettingDao) GetJobFor(arg0 string) []dao.JobSettings {
+// GetJobsFor mocks base method
+func (m *MockJobSettingDao) GetJobsFor(arg0 string) []dao.JobSettings {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetJobFor", arg0)
+	ret := m.ctrl.Call(m, "GetJobsFor", arg0)
 	ret0, _ := ret[0].([]dao.JobSettings)
 	return ret0
 }
 
-// GetJobFor indicates an expected call of GetJobFor
-func (mr *MockJobSettingDaoMockRecorder) GetJobFor(arg0 interface{}) *gomock.Call {
+// GetJobsFor indicates an expected call of GetJobsFor
+func (mr *MockJobSettingDaoMockRecorder) GetJobsFor(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJobFor", reflect.TypeOf((*MockJobSettingDao)(nil).GetJobFor), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJobsFor", reflect.TypeOf((*MockJobSettingDao)(nil).GetJobsFor), arg0)
 }
 
 // SaveJob mocks base method

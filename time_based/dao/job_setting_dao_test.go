@@ -81,7 +81,7 @@ func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
 		expectedJobNames := []string{"1", "3"}
 		expectedFileNames := []string{"1.sh", "3.sh"}
 
-		jobs := dao.GetJobFor("wed")
+		jobs := dao.GetJobsFor("wed")
 
 		if len(jobs) != 2 {
 			t.Errorf("Count mismatch expected %d but was %d", 2, len(jobs))
