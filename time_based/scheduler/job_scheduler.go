@@ -1,20 +1,22 @@
 package scheduler
 
 import (
+	"github.com/abdulrahmank/job_executor/time_based/dao"
 	"github.com/abdulrahmank/job_executor/time_based/exector"
 	"log"
 	"time"
 )
 
 type TimeBasedScheduler interface {
-	Schedule(time time.Time, filename string)
+	Schedule(time time.Time, jobName, filename string)
 }
 
 type TimeBasedSchedulerImpl struct {
+	SettingDao dao.JobSettingDao
 	Executor exector.Executor
 }
 
-func (t *TimeBasedSchedulerImpl) Schedule(timeStr time.Time, filename string) {
+func (t *TimeBasedSchedulerImpl) Schedule(timeStr time.Time, jobName, filename string) {
 	duration := timeStr.Sub(time.Now())
 	timer := time.NewTimer(duration)
 	done := make(chan bool)
@@ -27,5 +29,6 @@ func (t *TimeBasedSchedulerImpl) Schedule(timeStr time.Time, filename string) {
 		}
 		done <- true
 	}()
+	t.SettingDao.SetJobStatus(jobName, dao.STATUS_SCHEDULED)
 	<-done
 }

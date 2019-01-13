@@ -34,13 +34,13 @@ func (m *MockTimeBasedScheduler) EXPECT() *MockTimeBasedSchedulerMockRecorder {
 }
 
 // Schedule mocks base method
-func (m *MockTimeBasedScheduler) Schedule(arg0 time.Time, arg1 string) {
+func (m *MockTimeBasedScheduler) Schedule(arg0 time.Time, arg1, arg2 string) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Schedule", arg0, arg1)
+	m.ctrl.Call(m, "Schedule", arg0, arg1, arg2)
 }
 
 // Schedule indicates an expected call of Schedule
-func (mr *MockTimeBasedSchedulerMockRecorder) Schedule(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockTimeBasedSchedulerMockRecorder) Schedule(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Schedule", reflect.TypeOf((*MockTimeBasedScheduler)(nil).Schedule), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Schedule", reflect.TypeOf((*MockTimeBasedScheduler)(nil).Schedule), arg0, arg1, arg2)
 }

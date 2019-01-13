@@ -27,8 +27,8 @@ func TestJobOrchestrator(t *testing.T) {
 		time2 := time.Date(
 			now.Year(), now.Month(), now.Day(), 22, 0, 0, 0, time.UTC)
 
-		mockScheduler.EXPECT().Schedule(time1, "1.sh")
-		mockScheduler.EXPECT().Schedule(time2, "2.sh")
+		mockScheduler.EXPECT().Schedule(time1, "job1", "1.sh")
+		mockScheduler.EXPECT().Schedule(time2, "job2", "2.sh")
 
 		orchestrator.SyncJobs()
 	})
