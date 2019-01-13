@@ -17,7 +17,7 @@ func TestJobScheduler(t *testing.T) {
 		scheduler := TimeBasedSchedulerImpl{Executor: mockExecutor, SettingDao: mockSettingDao}
 		now := time.Now().Add(time.Duration(2 * time.Second))
 
-		mockExecutor.EXPECT().ExecuteJob("hw.sh")
+		mockExecutor.EXPECT().ExecuteJob("hw", "hw.sh")
 		mockSettingDao.EXPECT().SetJobStatus("hw", dao.STATUS_SCHEDULED)
 
 		scheduler.Schedule(now, "hw", "hw.sh")

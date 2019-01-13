@@ -13,7 +13,7 @@ type TimeBasedScheduler interface {
 
 type TimeBasedSchedulerImpl struct {
 	SettingDao dao.JobSettingDao
-	Executor exector.Executor
+	Executor   exector.Executor
 }
 
 func (t *TimeBasedSchedulerImpl) Schedule(timeStr time.Time, jobName, filename string) {
@@ -23,7 +23,7 @@ func (t *TimeBasedSchedulerImpl) Schedule(timeStr time.Time, jobName, filename s
 	go func() {
 		c := <-timer.C
 		log.Printf("Executed %s at %s\n", filename, c.String())
-		_, e := t.Executor.ExecuteJob(filename)
+		_, e := t.Executor.ExecuteJob(jobName, filename)
 		if e != nil {
 			log.Fatalf("Unable to execute %s due to %v\n", filename, e)
 		}

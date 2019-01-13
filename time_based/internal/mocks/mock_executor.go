@@ -33,16 +33,16 @@ func (m *MockExecutor) EXPECT() *MockExecutorMockRecorder {
 }
 
 // ExecuteJob mocks base method
-func (m *MockExecutor) ExecuteJob(arg0 string) ([]byte, error) {
+func (m *MockExecutor) ExecuteJob(arg0, arg1 string) ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExecuteJob", arg0)
+	ret := m.ctrl.Call(m, "ExecuteJob", arg0, arg1)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ExecuteJob indicates an expected call of ExecuteJob
-func (mr *MockExecutorMockRecorder) ExecuteJob(arg0 interface{}) *gomock.Call {
+func (mr *MockExecutorMockRecorder) ExecuteJob(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteJob", reflect.TypeOf((*MockExecutor)(nil).ExecuteJob), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteJob", reflect.TypeOf((*MockExecutor)(nil).ExecuteJob), arg0, arg1)
 }
