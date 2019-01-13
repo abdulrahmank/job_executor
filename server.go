@@ -7,6 +7,6 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/timed/", handler.TimedJobScheduler)
+	http.HandleFunc("/jobs/", handler.TimedJobScheduler)
 	log.Panic(http.ListenAndServe(":8082", nil))
 }

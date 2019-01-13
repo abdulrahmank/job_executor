@@ -13,9 +13,13 @@ import (
 )
 
 var jobOrchestrator *orchestrator.JobOrchestrator
+var jobPersistor *persistor.Persistor
 
 func init() {
-	getOrchestrator().SyncJobs()
+	jobOrchestrator = getOrchestrator()
+	jobPersistor = getPersistor()
+
+	jobOrchestrator.SyncJobs()
 	go syncJobsDaily()
 }
 
@@ -59,10 +63,8 @@ func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 		if _, err = file.Read(contents); err != nil {
 			log.Println("Error reading file contents")
 		}
-		p := getPersistor()
-		p.SaveJob(jobName, timeSlots, daysInWeek, fileHeader.Filename, numberOfWeeks, contents)
-		o := getOrchestrator()
-		o.SyncJobs()
+		jobPersistor.SaveJob(jobName, timeSlots, daysInWeek, fileHeader.Filename, numberOfWeeks, contents)
+		jobOrchestrator.SyncJobs()
 
 		w.WriteHeader(http.StatusOK)
 		if _, err := w.Write([]byte("Job saved successfully")); err != nil {
@@ -73,21 +75,21 @@ func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Not implemented")
 		break
 	case "DELETE":
-		log.Println("Not implemented")
+		jobName := r.URL.Path[len("/jobs/"):]
+		scheduler.ChannelPool[jobName].CancelCh <- true
+		jobPersistor.DeleteJob(jobName)
 		break
 	}
 
 }
 
 func getOrchestrator() *orchestrator.JobOrchestrator {
-	if jobOrchestrator == nil {
-		jobOrchestrator = &orchestrator.JobOrchestrator{Scheduler:
-		&scheduler.TimeBasedSchedulerImpl{Executor: &exector.BashExecutorImp{}},
-			SettingsDao: &dao.JobSettingDaoImpl{}}
-	}
-	return jobOrchestrator
+	return &orchestrator.JobOrchestrator{Scheduler:
+	&scheduler.TimeBasedSchedulerImpl{Executor: &exector.BashExecutorImp{}},
+		SettingsDao: &dao.JobSettingDaoImpl{}}
+
 }
 
-func getPersistor() persistor.Persistor {
-	return persistor.Persistor{FileDao: &dao.FileDaoImpl{}, SettingDao: &dao.JobSettingDaoImpl{}}
+func getPersistor() *persistor.Persistor {
+	return &persistor.Persistor{FileDao: &dao.FileDaoImpl{}, SettingDao: &dao.JobSettingDaoImpl{}}
 }
