@@ -45,6 +45,32 @@ func (mr *MockJobSettingDaoMockRecorder) DecrementRemainingWeeks(arg0 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecrementRemainingWeeks", reflect.TypeOf((*MockJobSettingDao)(nil).DecrementRemainingWeeks), arg0)
 }
 
+// DeleteJob mocks base method
+func (m *MockJobSettingDao) DeleteJob(arg0 string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "DeleteJob", arg0)
+}
+
+// DeleteJob indicates an expected call of DeleteJob
+func (mr *MockJobSettingDaoMockRecorder) DeleteJob(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteJob", reflect.TypeOf((*MockJobSettingDao)(nil).DeleteJob), arg0)
+}
+
+// GetFileName mocks base method
+func (m *MockJobSettingDao) GetFileName(arg0 string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFileName", arg0)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetFileName indicates an expected call of GetFileName
+func (mr *MockJobSettingDaoMockRecorder) GetFileName(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileName", reflect.TypeOf((*MockJobSettingDao)(nil).GetFileName), arg0)
+}
+
 // GetJobsFor mocks base method
 func (m *MockJobSettingDao) GetJobsFor(arg0 string) []dao.JobSettings {
 	m.ctrl.T.Helper()

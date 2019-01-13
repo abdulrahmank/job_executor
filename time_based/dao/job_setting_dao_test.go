@@ -141,3 +141,50 @@ func TestJobSettingDaoImpl_DecrementRemainingWeeks(t *testing.T) {
 		t.Errorf("Expected %d but was %d", 1, settings.NumberOfWeeks)
 	}
 }
+
+func TestJobSettingDaoImpl_DeleteJob(t *testing.T) {
+	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
+	db.Exec("TRUNCATE job_settings")
+	db.Exec("TRUNCATE job_status")
+	dao := JobSettingDaoImpl{}
+	jobName := "1"
+	dao.SaveJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
+
+	dao.DeleteJob(jobName)
+
+	rows, _ := db.Query("SELECT COUNT(*) FROM job_settings WHERE job_name = '1'")
+	statusRows, _ := db.Query("SELECT COUNT(*) FROM job_status WHERE job_name = '1'")
+	rows.Next()
+	statusRows.Next()
+
+	var count int
+	if e := rows.Scan(&count); e != nil {
+		log.Fatal(e)
+	}
+	if count != 0 {
+		t.Errorf("Expected %d but was %d", 0, count)
+	}
+	if e := statusRows.Scan(&count); e != nil {
+		log.Fatal(e)
+	}
+	if count != 0 {
+		t.Errorf("Expected %d but was %d", 0, count)
+	}
+}
+
+func TestJobSettingDaoImpl_GetFileName(t *testing.T) {
+	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
+	db.Exec("TRUNCATE job_settings")
+	db.Exec("TRUNCATE job_status")
+	dao := JobSettingDaoImpl{}
+	jobName := "1"
+	jobFileName := "1.sh"
+	dao.SaveJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", jobFileName, 2)
+
+	fileName := dao.GetFileName(jobName)
+
+	if fileName != jobFileName {
+		t.Errorf("Expected %s, but was %s\n", jobFileName, fileName)
+	}
+}
+

@@ -15,6 +15,8 @@ type JobSettingDao interface {
 	GetJobsFor(day string) []JobSettings
 	SetJobStatus(jobName, status string)
 	DecrementRemainingWeeks(jobName string)
+	DeleteJob(jobName string)
+	GetFileName(jobName string) string
 }
 
 type JobSettingDaoImpl struct{}
@@ -97,6 +99,36 @@ func (j *JobSettingDaoImpl) DecrementRemainingWeeks(jobName string) {
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}
+}
+
+func (j *JobSettingDaoImpl) DeleteJob(jobName string) {
+	if e := getDB(); e != nil {
+		return
+	}
+	_, e := db.Exec("DELETE FROM job_settings WHERE job_name=$1", jobName)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
+	_, e = db.Exec("DELETE FROM job_status WHERE job_name=$1", jobName)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
+}
+
+func (j *JobSettingDaoImpl) GetFileName(jobName string) string {
+	if e := getDB(); e != nil {
+		return ""
+	}
+	rows, e := db.Query("SELECT file_name FROM job_settings WHERE job_name=$1", jobName)
+	if e != nil {
+		log.Fatalf("Unable to query %s\n", e.Error())
+	}
+	rows.Next()
+	var result string
+	if e = rows.Scan(&result); e != nil {
+		log.Fatalf("Unable to scan %s\n", e.Error())
+	}
+	return result
 }
 
 func getDB() error {
