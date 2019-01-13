@@ -13,7 +13,7 @@ func TestJobScheduler(t *testing.T) {
 		mockCtrl := gomock.NewController(t)
 		defer mockCtrl.Finish()
 		mockExecutor := mocks.NewMockExecutor(mockCtrl)
-		scheduler := TimeBasedScheduler{Executor: mockExecutor}
+		scheduler := TimeBasedSchedulerImpl{Executor: mockExecutor}
 		now := time.Now().Add(time.Duration(2 * time.Second))
 
 		mockExecutor.EXPECT().ExecuteJob("hw.sh")

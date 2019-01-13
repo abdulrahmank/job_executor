@@ -7,11 +7,15 @@ import (
 	"time"
 )
 
-type TimeBasedScheduler struct {
+type TimeBasedScheduler interface {
+	Schedule(timeStr, filename string)
+}
+
+type TimeBasedSchedulerImpl struct {
 	Executor exector.Executor
 }
 
-func (t *TimeBasedScheduler) Schedule(timeStr, filename string) {
+func (t *TimeBasedSchedulerImpl) Schedule(timeStr, filename string) {
 	parse, err := time.Parse(constants.TIME_LAYOUT, timeStr)
 	if err != nil {
 		log.Fatalf("Unable to parse time %s", err.Error())
