@@ -1,7 +1,7 @@
 package persistor
 
 import (
-	"github.com/abdulrahmank/job_executor/time_based/mocks"
+	"github.com/abdulrahmank/job_executor/time_based/internal/mocks"
 	"github.com/golang/mock/gomock"
 	"testing"
 )
