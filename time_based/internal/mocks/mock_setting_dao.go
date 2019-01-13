@@ -33,6 +33,18 @@ func (m *MockJobSettingDao) EXPECT() *MockJobSettingDaoMockRecorder {
 	return m.recorder
 }
 
+// DecrementRemainingWeeks mocks base method
+func (m *MockJobSettingDao) DecrementRemainingWeeks(arg0 string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "DecrementRemainingWeeks", arg0)
+}
+
+// DecrementRemainingWeeks indicates an expected call of DecrementRemainingWeeks
+func (mr *MockJobSettingDaoMockRecorder) DecrementRemainingWeeks(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecrementRemainingWeeks", reflect.TypeOf((*MockJobSettingDao)(nil).DecrementRemainingWeeks), arg0)
+}
+
 // GetJobsFor mocks base method
 func (m *MockJobSettingDao) GetJobsFor(arg0 string) []dao.JobSettings {
 	m.ctrl.T.Helper()

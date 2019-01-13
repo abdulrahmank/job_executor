@@ -20,6 +20,7 @@ func (e *BashExecutorImp) ExecuteJob(jobName, fileName string) ([]byte, error) {
 	jobFileDir := os.Getenv(constants.JOB_FILE_DIR)
 	cmd := exec.Command("/bin/sh", jobFileDir+fileName)
 	e.SettingDao.SetJobStatus(jobName, dao.STATUS_COMPLETED)
+	e.SettingDao.DecrementRemainingWeeks(jobName)
 	if op, err := cmd.Output(); err != nil {
 		log.Fatal(err.Error())
 		return op, err

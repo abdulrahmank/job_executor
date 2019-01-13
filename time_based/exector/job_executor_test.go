@@ -22,6 +22,7 @@ func TestShouldScheduleTimerToExecuteJob(t *testing.T) {
 			t.Error(e.Error())
 		}
 		mockSettingDao.EXPECT().SetJobStatus("hw", dao.STATUS_COMPLETED)
+		mockSettingDao.EXPECT().DecrementRemainingWeeks("hw")
 
 		_, err := executor.ExecuteJob("hw", "hw.sh")
 

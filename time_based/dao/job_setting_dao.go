@@ -14,6 +14,7 @@ type JobSettingDao interface {
 	SaveJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int)
 	GetJobsFor(day string) []JobSettings
 	SetJobStatus(jobName, status string)
+	DecrementRemainingWeeks(jobName string)
 }
 
 type JobSettingDaoImpl struct{}
@@ -33,6 +34,7 @@ const STATUS_NOT_PICKED = "not_picked"
 const STATUS_SCHEDULED = "scheduled"
 const STATUS_COMPLETED = "completed"
 
+//TODO: Think of separating remaining weeks from job_settings table
 func (j *JobSettingDaoImpl) SaveJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int) {
 	if e := getDB(); e != nil {
 		return
@@ -81,6 +83,17 @@ func (j *JobSettingDaoImpl) SetJobStatus(jobName, status string) {
 		return
 	}
 	_, e := db.Exec("UPDATE job_status SET status=$1 WHERE job_name=$2", status, jobName)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
+}
+
+func (j *JobSettingDaoImpl) DecrementRemainingWeeks(jobName string) {
+	if e := getDB(); e != nil {
+		return
+	}
+	_, e := db.Exec("update job_settings set remaining_weeks = "+
+		"(select remaining_weeks from job_settings where job_name=$1) - 1 where job_name=$1", jobName)
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}

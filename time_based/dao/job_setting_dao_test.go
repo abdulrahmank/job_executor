@@ -31,7 +31,7 @@ func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
 			log.Fatal(e)
 		}
 
-		if settings.TimeSlots[0] != "20:00" &&  settings.TimeSlots[1] != "10:00" {
+		if settings.TimeSlots[0] != "20:00" && settings.TimeSlots[1] != "10:00" {
 			t.Error("Time mismatch")
 			t.Fail()
 		}
@@ -67,7 +67,6 @@ func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
 			t.Error("Job status mismatch")
 		}
 	})
-
 
 	t.Run("Should get saved job settings for that day", func(t *testing.T) {
 		db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
@@ -119,5 +118,26 @@ func TestJobSettingDaoImpl_SetJobStatus(t *testing.T) {
 	}
 	if status != STATUS_SCHEDULED {
 		t.Errorf("Expected %s but was %s", STATUS_SCHEDULED, status)
+	}
+}
+
+func TestJobSettingDaoImpl_DecrementRemainingWeeks(t *testing.T) {
+	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
+	db.Exec("TRUNCATE job_settings")
+	db.Exec("TRUNCATE job_status")
+	dao := JobSettingDaoImpl{}
+	jobName := "1"
+	dao.SaveJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
+
+	dao.DecrementRemainingWeeks(jobName)
+
+	rows, _ := db.Query("SELECT * FROM job_settings WHERE job_name = '1'")
+	rows.Next()
+	settings := JobSettings{}
+	if e := rows.Scan(&settings.Id, &settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.FileName, &settings.NumberOfWeeks); e != nil {
+		log.Fatal(e)
+	}
+	if settings.NumberOfWeeks != 1 {
+		t.Errorf("Expected %d but was %d", 1, settings.NumberOfWeeks)
 	}
 }
