@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"github.com/abdulrahmank/job_executor/constants"
 	"os"
 	"testing"
 )
@@ -10,11 +11,12 @@ func TestSaveFile(t *testing.T) {
 
 	t.Run("Should save file", func(t *testing.T) {
 		contentString := "echo 'hello world'"
+		_ = os.Setenv(constants.JOB_FILE_DIR, ".")
 
 		impl := FileDaoImpl{}
 		impl.SaveFile(fileName, []byte(contentString))
 
-		file, _ := os.Open(fileName)
+		file, _ := os.Open("./" + fileName)
 		defer file.Close()
 		if file == nil {
 			t.Error("Expected file to be present")

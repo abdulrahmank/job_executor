@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"github.com/abdulrahmank/job_executor/constants"
 	"log"
 	"os"
 )
@@ -9,10 +10,11 @@ type FileDao interface {
 	SaveFile(jobFileName string, contents []byte)
 }
 
-type FileDaoImpl struct {}
+type FileDaoImpl struct{}
 
 func (f *FileDaoImpl) SaveFile(jobFileName string, contents []byte) {
-	file, e := os.Create(jobFileName)
+	jobFilePath := os.Getenv(constants.JOB_FILE_DIR)
+	file, e := os.Create(jobFilePath + "/" + jobFileName)
 	if e = os.Chmod(jobFileName, 777); e != nil {
 		log.Fatal("Unable to change file mode")
 	}
