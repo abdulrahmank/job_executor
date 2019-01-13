@@ -28,6 +28,10 @@ type JobSettings struct {
 
 var db *sql.DB
 
+const STATUS_NOT_PICKED = "not_picked"
+const STATUS_SCHEDULED = "scheduled"
+const STATUS_COMPLETED = "completed"
+
 func (j *JobSettingDaoImpl) SaveJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int) {
 	if e := getDB(); e != nil {
 		return
@@ -36,8 +40,12 @@ func (j *JobSettingDaoImpl) SaveJob(jobName, timeSlots, daysInWeek, fileName str
 	defer tx.Commit()
 	timeSlotSlice := strings.Split(timeSlots, ",")
 	daysInWeekSlice := strings.Split(daysInWeek, ",")
-	result, e := tx.Exec(
+	result, e := db.Exec(
 		"INSERT INTO job_settings (job_name, time_slots, days, file_name, remaining_weeks) VALUES ($1, $2, $3, $4, $5)", jobName, pq.Array(timeSlotSlice), pq.Array(daysInWeekSlice), fileName, numberOfWeeks)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
+	result, e = db.Exec("INSERT INTO job_status VALUES ($1, $2)", jobName, STATUS_NOT_PICKED)
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}
@@ -50,7 +58,9 @@ func (j *JobSettingDaoImpl) GetJobFor(day string) []JobSettings {
 	if e := getDB(); e != nil {
 		return nil
 	}
-	rows, e := db.Query("SELECT * FROM job_settings WHERE days @> ARRAY[$1]::text[] AND remaining_weeks > 0", day)
+	rows, e := db.Query("SELECT j.id, j.job_name, j.time_slots, j.days, j.file_name, j.remaining_weeks "+
+		"FROM job_settings j LEFT JOIN job_status s ON j.job_name=s.job_name  WHERE days @> ARRAY[$1]::text[] "+
+		"AND j.remaining_weeks > 0 AND s.status = $2", day, STATUS_NOT_PICKED)
 	if e != nil {
 		log.Fatalf("Unable to query for day: %s\n", e.Error())
 	}

@@ -16,10 +16,14 @@ func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
 		fileName := "helloworld.sh"
 		numberOfWeeks := 2
 
+		db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
+		db.Exec("TRUNCATE job_settings")
+		db.Exec("TRUNCATE job_status")
+
 		dao.SaveJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks)
 
-		db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
 		rows, _ := db.Query("SELECT * FROM job_settings WHERE job_name = 'helloWorld'")
+		statusRows, _ := db.Query("SELECT * FROM job_status")
 
 		settings := JobSettings{}
 		rows.Next()
@@ -49,7 +53,18 @@ func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
 
 		if settings.JobName != jobName {
 			t.Error("Job name mismatch")
-			t.Fail()
+		}
+
+		statusRows.Next()
+		var jobNameStatus, status string
+		if e := statusRows.Scan(&jobNameStatus, &status); e != nil {
+			log.Fatalf("%v\n", e)
+		}
+		if jobNameStatus != settings.JobName {
+			t.Error("Job name mismatch")
+		}
+		if status != STATUS_NOT_PICKED {
+			t.Error("Job status mismatch")
 		}
 	})
 
@@ -57,6 +72,7 @@ func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
 	t.Run("Should get saved job settings for that day", func(t *testing.T) {
 		db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
 		db.Exec("TRUNCATE job_settings")
+		db.Exec("TRUNCATE job_status")
 		dao := JobSettingDaoImpl{}
 		dao.SaveJob("1", "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
 		dao.SaveJob("2", "08:00PM,10:00AM", "tue,fri", "2.sh", 2)
