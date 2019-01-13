@@ -59,8 +59,10 @@ func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 		if _, err = file.Read(contents); err != nil {
 			log.Println("Error reading file contents")
 		}
-		getPersistor().SaveJob(jobName, timeSlots, daysInWeek, fileHeader.Filename, numberOfWeeks, contents)
-		getOrchestrator().SyncJobs()
+		p := getPersistor()
+		p.SaveJob(jobName, timeSlots, daysInWeek, fileHeader.Filename, numberOfWeeks, contents)
+		o := getOrchestrator()
+		o.SyncJobs()
 
 		w.WriteHeader(http.StatusOK)
 		if _, err := w.Write([]byte("Job saved successfully")); err != nil {
