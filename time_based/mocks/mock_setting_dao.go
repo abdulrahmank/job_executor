@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	dao "github.com/abdulrahmank/job_executor/time_based/dao"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -30,6 +31,20 @@ func NewMockJobSettingDao(ctrl *gomock.Controller) *MockJobSettingDao {
 // EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockJobSettingDao) EXPECT() *MockJobSettingDaoMockRecorder {
 	return m.recorder
+}
+
+// GetJobFor mocks base method
+func (m *MockJobSettingDao) GetJobFor(arg0 string) []dao.JobSettings {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetJobFor", arg0)
+	ret0, _ := ret[0].([]dao.JobSettings)
+	return ret0
+}
+
+// GetJobFor indicates an expected call of GetJobFor
+func (mr *MockJobSettingDaoMockRecorder) GetJobFor(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJobFor", reflect.TypeOf((*MockJobSettingDao)(nil).GetJobFor), arg0)
 }
 
 // SaveJob mocks base method

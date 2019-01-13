@@ -12,28 +12,25 @@ import (
 
 type JobSettingDao interface {
 	SaveJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int)
+	GetJobFor(day string) []JobSettings
 }
 
 type JobSettingDaoImpl struct{}
 
 type JobSettings struct {
-	Id         int
-	JobName    string
-	TimeSlots  []string
-	DaysInWeek []string
-	FileName   string
+	Id            int
+	JobName       string
+	TimeSlots     []string
+	DaysInWeek    []string
+	FileName      string
 	NumberOfWeeks int
 }
 
 var db *sql.DB
 
 func (j *JobSettingDaoImpl) SaveJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int) {
-	var e error
-	if db == nil {
-		db, e = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
-		if e != nil {
-			log.Panicf("%v\n", e)
-		}
+	if e := getDB(); e != nil {
+		return
 	}
 	tx, _ := db.Begin()
 	defer tx.Commit()
@@ -47,6 +44,36 @@ func (j *JobSettingDaoImpl) SaveJob(jobName, timeSlots, daysInWeek, fileName str
 	if n, _ := result.RowsAffected(); n != 1 {
 		log.Fatal("Error inserting job")
 	}
+}
+
+func (j *JobSettingDaoImpl) GetJobFor(day string) []JobSettings {
+	if e := getDB(); e != nil {
+		return nil
+	}
+	rows, e := db.Query("SELECT * FROM job_settings WHERE days @> ARRAY[$1]::text[] AND remaining_weeks > 0", day)
+	if e != nil {
+		log.Fatalf("Unable to query for day: %s\n", e.Error())
+	}
+	jobs := make([]JobSettings, 0)
+	for rows.Next() {
+		j := JobSettings{}
+		if e = rows.Scan(&j.Id, &j.JobName, pq.Array(&j.TimeSlots), pq.Array(&j.DaysInWeek), &j.FileName, &j.NumberOfWeeks); e != nil {
+			log.Fatalf("%v\n", e)
+		}
+		jobs = append(jobs, j)
+	}
+	return jobs
+}
+
+func getDB() error {
+	var e error
+	if db == nil {
+		db, e = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
+		if e != nil {
+			log.Panicf("%v\n", e)
+		}
+	}
+	return e
 }
 
 func getPSQlInfo(user, dbName, password string) string {
