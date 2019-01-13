@@ -28,3 +28,22 @@ func TestSaveJob(t *testing.T) {
 		persistor.SaveJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks, content)
 	})
 }
+
+func TestPersistor_DeleteJob(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockFileDao := mocks.NewMockFileDao(mockCtrl)
+	mockSettingsDao := mocks.NewMockJobSettingDao(mockCtrl)
+
+	jobName := "job"
+	fileName := "file"
+	mockSettingsDao.EXPECT().GetFileName(jobName).Return(fileName)
+	mockSettingsDao.EXPECT().DeleteJob(jobName)
+	mockFileDao.EXPECT().DeleteFile(fileName)
+
+	persistor := &Persistor{FileDao: mockFileDao, SettingDao: mockSettingsDao}
+
+	persistor.DeleteJob(jobName)
+}
+

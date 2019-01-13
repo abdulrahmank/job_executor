@@ -11,3 +11,9 @@ func (p *Persistor) SaveJob(jobName, timeSlots, daysInWeek, fileName string, num
 	p.FileDao.SaveFile(fileName, jobFileContent)
 	p.SettingDao.SaveJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks)
 }
+
+func (p *Persistor) DeleteJob(jobName string) {
+	fileName := p.SettingDao.GetFileName(jobName)
+	p.FileDao.DeleteFile(fileName)
+	p.SettingDao.DeleteJob(jobName)
+}
