@@ -9,7 +9,34 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
+
+var jobOrchestrator *orchestrator.JobOrchestrator
+
+func init() {
+	getOrchestrator().SyncJobs()
+	go syncJobsDaily()
+}
+
+func syncJobsDaily() {
+	for {
+		now := time.Now()
+		tmr := now.AddDate(0, 0, 1)
+		syncScheduleTime := time.Date(tmr.Year(), tmr.Month(), tmr.Day(),
+			0, 0, 0, 0, time.UTC)
+		durationForNextSync := syncScheduleTime.Sub(now)
+		syncScheduleCh := time.After(durationForNextSync)
+		done := make(chan bool)
+		select {
+		case <-syncScheduleCh:
+			getOrchestrator().SyncJobs()
+			done <- true
+			break
+		}
+		<-done
+	}
+}
 
 func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -53,10 +80,13 @@ func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func getOrchestrator() orchestrator.JobOrchestrator {
-	return orchestrator.JobOrchestrator{Scheduler:
-	&scheduler.TimeBasedSchedulerImpl{Executor: &exector.BashExecutorImp{}},
-		SettingsDao: &dao.JobSettingDaoImpl{}}
+func getOrchestrator() *orchestrator.JobOrchestrator {
+	if jobOrchestrator == nil {
+		jobOrchestrator = &orchestrator.JobOrchestrator{Scheduler:
+		&scheduler.TimeBasedSchedulerImpl{Executor: &exector.BashExecutorImp{}},
+			SettingsDao: &dao.JobSettingDaoImpl{}}
+	}
+	return jobOrchestrator
 }
 
 func getPersistor() persistor.Persistor {
