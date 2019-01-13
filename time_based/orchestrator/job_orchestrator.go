@@ -1,6 +1,7 @@
 package orchestrator
 
 import (
+	"github.com/abdulrahmank/job_executor/constants"
 	"github.com/abdulrahmank/job_executor/time_based/dao"
 	"github.com/abdulrahmank/job_executor/time_based/scheduler"
 	"time"
@@ -17,7 +18,15 @@ func (j *JobOrchestrator) SyncJobs() {
 
 	for _, job := range jobsForToday {
 		for _, timeSlot := range job.TimeSlots {
-			j.Scheduler.Schedule(timeSlot, job.FileName)
+			j.Scheduler.Schedule(getTime(timeSlot), job.FileName)
 		}
 	}
+}
+
+func getTime(timeSlot string) time.Time {
+	parsedTime, _ := time.Parse(constants.TIME_LAYOUT, timeSlot)
+	now := time.Now()
+	scheduledTime := time.Date(
+		now.Year(), now.Month(), now.Day(), parsedTime.Hour(), parsedTime.Minute(), 0, 0, time.UTC)
+	return scheduledTime
 }

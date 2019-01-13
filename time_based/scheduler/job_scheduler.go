@@ -7,7 +7,7 @@ import (
 )
 
 type TimeBasedScheduler interface {
-	Schedule(timeStr, filename string)
+	Schedule(time time.Time, filename string)
 }
 
 type TimeBasedSchedulerImpl struct {

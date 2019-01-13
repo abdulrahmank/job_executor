@@ -7,6 +7,7 @@ package mocks
 import (
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+	time "time"
 )
 
 // MockTimeBasedScheduler is a mock of TimeBasedScheduler interface
@@ -33,7 +34,7 @@ func (m *MockTimeBasedScheduler) EXPECT() *MockTimeBasedSchedulerMockRecorder {
 }
 
 // Schedule mocks base method
-func (m *MockTimeBasedScheduler) Schedule(arg0, arg1 string) {
+func (m *MockTimeBasedScheduler) Schedule(arg0 time.Time, arg1 string) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Schedule", arg0, arg1)
 }
