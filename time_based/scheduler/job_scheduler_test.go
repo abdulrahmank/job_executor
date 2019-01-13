@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"github.com/abdulrahmank/job_executor/constants"
 	"github.com/abdulrahmank/job_executor/time_based/internal/mocks"
 	"github.com/golang/mock/gomock"
 	"testing"
@@ -18,8 +17,6 @@ func TestJobScheduler(t *testing.T) {
 
 		mockExecutor.EXPECT().ExecuteJob("hw.sh")
 
-		scheduler.Schedule(now.Format(constants.TIME_LAYOUT), "hw.sh")
-		// sleeping for allowing the timer to send data to channel
-		time.Sleep(time.Duration(2 * time.Second))
+		scheduler.Schedule(now, "hw.sh")
 	})
 }
