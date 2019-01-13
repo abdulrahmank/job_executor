@@ -3,6 +3,7 @@ package dao
 import (
 	"github.com/abdulrahmank/job_executor/constants"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -34,4 +35,17 @@ func TestSaveFile(t *testing.T) {
 	})
 
 	_ = os.Remove(fileName)
+}
+
+func TestFileDaoImpl_DeleteFile(t *testing.T) {
+	_ = os.Setenv(constants.JOB_FILE_DIR, ".")
+	_, _ = os.Create("./file.sh")
+
+	impl := FileDaoImpl{}
+	impl.DeleteFile("file.sh")
+
+	file, e := os.Stat("./file.sh")
+	if !strings.Contains(e.Error(), "no such file") {
+		t.Errorf("Expected to be nil but was %v", file)
+	}
 }

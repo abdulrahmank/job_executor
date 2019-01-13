@@ -8,6 +8,7 @@ import (
 
 type FileDao interface {
 	SaveFile(jobFileName string, contents []byte)
+	DeleteFile(jobFileName string)
 }
 
 type FileDaoImpl struct{}
@@ -26,5 +27,13 @@ func (f *FileDaoImpl) SaveFile(jobFileName string, contents []byte) {
 	}
 	if e = file.Close(); e != nil {
 		log.Fatal("Unable to save file contents")
+	}
+}
+
+func (f *FileDaoImpl) DeleteFile(jobFileName string) {
+	jobFilePath := os.Getenv(constants.JOB_FILE_DIR)
+	e := os.Remove(jobFilePath + "/" + jobFileName)
+	if e != nil {
+		log.Fatal("Unable to create file")
 	}
 }

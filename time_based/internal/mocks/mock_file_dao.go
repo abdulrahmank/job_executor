@@ -32,6 +32,18 @@ func (m *MockFileDao) EXPECT() *MockFileDaoMockRecorder {
 	return m.recorder
 }
 
+// DeleteFile mocks base method
+func (m *MockFileDao) DeleteFile(arg0 string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "DeleteFile", arg0)
+}
+
+// DeleteFile indicates an expected call of DeleteFile
+func (mr *MockFileDaoMockRecorder) DeleteFile(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFile", reflect.TypeOf((*MockFileDao)(nil).DeleteFile), arg0)
+}
+
 // SaveFile mocks base method
 func (m *MockFileDao) SaveFile(arg0 string, arg1 []byte) {
 	m.ctrl.T.Helper()
