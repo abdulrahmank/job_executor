@@ -21,13 +21,16 @@ func (t *TimeBasedSchedulerImpl) Schedule(timeStr time.Time, jobName, filename s
 	timer := time.NewTimer(duration)
 	done := make(chan bool)
 	go func() {
-		c := <-timer.C
-		log.Printf("Executed %s at %s\n", filename, c.String())
-		_, e := t.Executor.ExecuteJob(jobName, filename)
-		if e != nil {
-			log.Fatalf("Unable to execute %s due to %v\n", filename, e)
+		select {
+		case c := <-timer.C:
+			log.Printf("Executed %s at %s\n", filename, c.String())
+			_, e := t.Executor.ExecuteJob(jobName, filename)
+			if e != nil {
+				log.Fatalf("Unable to execute %s due to %v\n", filename, e)
+			}
+			done <- true
+			return
 		}
-		done <- true
 	}()
 	t.SettingDao.SetJobStatus(jobName, dao.STATUS_SCHEDULED)
 	<-done
