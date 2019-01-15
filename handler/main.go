@@ -22,7 +22,7 @@ type Config struct {
 }
 
 type jobActionRequest struct {
-	action    string  `json:"action"`
+	action string `json:"action"`
 }
 
 var jobOrchestrator *orchestrator.JobOrchestrator
@@ -103,6 +103,9 @@ func JobHandler(w http.ResponseWriter, r *http.Request) {
 		switch actionReq.action {
 		case "stop":
 			scheduler.ChannelPool[jobName].CancelCh <- true
+			break
+		case "retry":
+			jobOrchestrator.ExecuteJob(jobName)
 			break
 		}
 		w.WriteHeader(http.StatusOK)

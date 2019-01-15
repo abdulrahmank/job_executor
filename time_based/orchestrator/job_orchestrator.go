@@ -36,6 +36,13 @@ func (j *JobOrchestrator) ExecuteJobsForEvent(eventName string) {
 	}
 }
 
+func (j *JobOrchestrator) ExecuteJob(jobName string) {
+	fileName := j.SettingsDao.GetFileName(jobName)
+	if _, e := j.JobExecutor.ExecuteJob(jobName, fileName); e != nil {
+		log.Panicf("Error running job %s:%v\n", jobName, e)
+	}
+}
+
 func getTime(timeSlot string) time.Time {
 	parsedTime, _ := time.Parse(constants.TIME_LAYOUT, timeSlot)
 	now := time.Now()

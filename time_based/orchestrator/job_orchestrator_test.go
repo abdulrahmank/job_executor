@@ -50,3 +50,18 @@ func TestJobOrchestrator_ExecuteJobsForEvent(t *testing.T) {
 
 	orchestrator.ExecuteJobsForEvent(eventName)
 }
+
+func TestJobOrchestrator_ExecuteJob(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	mockExecutor := mocks.NewMockExecutor(mockCtrl)
+	mockSettingDao := mocks.NewMockJobSettingDao(mockCtrl)
+	jobName := "job"
+	fileName := "fileName"
+
+	orchestrator := JobOrchestrator{JobExecutor: mockExecutor, SettingsDao: mockSettingDao}
+	mockSettingDao.EXPECT().GetFileName(jobName).Return(fileName)
+	mockExecutor.EXPECT().ExecuteJob(jobName, fileName)
+
+	orchestrator.ExecuteJob(jobName)
+}
