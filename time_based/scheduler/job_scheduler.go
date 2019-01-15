@@ -35,7 +35,7 @@ func (t *TimeBasedSchedulerImpl) Schedule(timeStr time.Time, jobName, filename s
 	go func() {
 		select {
 		case c := <-channel.timerCh:
-			log.Printf("Executed %s at %s\n", filename, c.String())
+			log.Printf("Executed %s at %s\n", filename, c.Format(time.Stamp))
 			_, e := t.Executor.ExecuteJob(jobName, filename)
 			if e != nil {
 				log.Fatalf("Unable to execute %s due to %v\n", filename, e)

@@ -1,10 +1,14 @@
 package scheduler
 
 import (
+	"bytes"
+	"fmt"
 	"github.com/abdulrahmank/job_executor/time_based/dao"
 	"github.com/abdulrahmank/job_executor/time_based/internal/mocks"
 	"github.com/golang/mock/gomock"
 	"log"
+	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -22,7 +26,18 @@ func TestJobScheduler(t *testing.T) {
 		mockExecutor.EXPECT().ExecuteJob("hw", "hw.sh")
 		mockSettingDao.EXPECT().SetJobStatus("hw", dao.STATUS_SCHEDULED)
 
+		var str bytes.Buffer
+		log.SetOutput(&str)
+
 		scheduler.Schedule(now, "hw", "hw.sh")
+
+		expectedLog := fmt.Sprintf("Executed hw.sh at %s\n", now.Format(time.Stamp))
+		actualLog := str.String()[strings.Index(str.String(), "Executed"):]
+
+		if actualLog != expectedLog {
+			t.Errorf("Expected %s but was %s", expectedLog, actualLog)
+		}
+		log.SetOutput(os.Stdout)
 	})
 
 	t.Run("Should be able to cancel execution of job", func(t *testing.T) {
