@@ -73,12 +73,9 @@ func TestPersistor_SaveEvenBasedJob(t *testing.T) {
 
 	persistor := &Persistor{FileDao: mockFileDao, SettingDao: mockSettingsDao}
 	jobName := "hw"
-	fileName := "hw.sh"
 	eventName := "event"
-	content := []byte("echo 'hello world'")
 
-	mockFileDao.EXPECT().SaveFile(fileName, content)
-	mockSettingsDao.EXPECT().SaveEventBasedJob(jobName, fileName, eventName)
+	mockSettingsDao.EXPECT().SaveEventBasedJob(jobName, eventName)
 
-	persistor.SaveEvenBasedJob(jobName, fileName, eventName, content)
+	persistor.ConfigureEventBasedJob(jobName, eventName)
 }

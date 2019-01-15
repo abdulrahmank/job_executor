@@ -18,9 +18,8 @@ func (p *Persistor) DeleteJob(jobName string) {
 	p.SettingDao.DeleteJob(jobName)
 }
 
-func (p *Persistor) SaveEvenBasedJob(jobName, fileName, eventName string, jobFileContent []byte) {
-	p.FileDao.SaveFile(fileName, jobFileContent)
-	p.SettingDao.SaveEventBasedJob(jobName, fileName, eventName)
+func (p *Persistor) ConfigureEventBasedJob(jobName, eventName string) {
+	p.SettingDao.SaveEventBasedJob(jobName, eventName)
 }
 
 func (p *Persistor) ConfigureTimeBasedJob(jobName, timeSlots, daysInWeek string, numberOfWeeks int) {

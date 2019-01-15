@@ -105,6 +105,13 @@ func JobConfigHandler(w http.ResponseWriter, r *http.Request) {
 			jobOrchestrator := getOrchestrator()
 			jobOrchestrator.SyncJobs()
 			break
+		case "event":
+			jobPersistor := getPersistor()
+			if config.JobName == nil || config.EventName == nil {
+				log.Panic("Config options can't be nil")
+			}
+			jobPersistor.ConfigureEventBasedJob(*config.JobName, *config.EventName)
+			break
 		}
 
 		break

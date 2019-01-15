@@ -18,7 +18,7 @@ type JobSettingDao interface {
 	DecrementRemainingWeeks(jobName string)
 	DeleteJob(jobName string)
 	GetFileName(jobName string) string
-	SaveEventBasedJob(jobName, fileName, eventName string)
+	SaveEventBasedJob(jobName, eventName string)
 	GetJobsForEvent(eventName string) []Job
 }
 
@@ -79,16 +79,11 @@ func (j *JobSettingDaoImpl) SaveTimedJob(jobName, timeSlots, daysInWeek string, 
 	}
 }
 
-func (j *JobSettingDaoImpl) SaveEventBasedJob(jobName, fileName, eventName string) {
+func (j *JobSettingDaoImpl) SaveEventBasedJob(jobName, eventName string) {
 	if e := getDB(); e != nil {
 		return
 	}
 	_, e := db.Exec(
-		"INSERT INTO job (job_name, file_name) VALUES ($1, $2)", jobName, fileName)
-	if e != nil {
-		log.Panicf("%v\n", e)
-	}
-	_, e = db.Exec(
 		"INSERT INTO event_job_mappings (job_name, event) VALUES ($1, $2)", jobName, eventName)
 	if e != nil {
 		log.Panicf("%v\n", e)

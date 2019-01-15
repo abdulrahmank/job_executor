@@ -209,7 +209,7 @@ func TestJobSettingDaoImpl_DeleteJob(t *testing.T) {
 	jobName := "1"
 	dao.SaveJob(jobName, "1.sh")
 	dao.SaveTimedJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", 2)
-	dao.SaveEventBasedJob(jobName, "1.sh", "event")
+	dao.SaveEventBasedJob(jobName, "event")
 
 	dao.DeleteJob(jobName)
 
@@ -278,7 +278,8 @@ func TestJobSettingDaoImpl_SaveEventBasedJob(t *testing.T) {
 	fileName := "1.sh"
 	evenName := "event"
 
-	dao.SaveEventBasedJob(jobName, fileName, evenName)
+	dao.SaveJob(jobName, fileName)
+	dao.SaveEventBasedJob(jobName, evenName)
 
 	rows, _ := db.Query("SELECT * FROM job")
 	rows.Next()
@@ -317,8 +318,10 @@ func TestJobSettingDaoImpl_GetJobsForEvent(t *testing.T) {
 	db.Exec("TRUNCATE event_job_mappings")
 	dao := JobSettingDaoImpl{}
 	evenName := "event"
-	dao.SaveEventBasedJob("1", "1.sh", evenName)
-	dao.SaveEventBasedJob("2", "2.sh", evenName)
+	dao.SaveJob("1", "1.sh")
+	dao.SaveJob("2", "2.sh")
+	dao.SaveEventBasedJob("1", evenName)
+	dao.SaveEventBasedJob("2", evenName)
 
 	jobs := dao.GetJobsForEvent(evenName)
 
