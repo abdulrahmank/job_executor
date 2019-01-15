@@ -10,7 +10,7 @@ import (
 )
 
 type JobOrchestrator struct {
-	Scheduler   scheduler.TimeBasedScheduler
+	Scheduler   scheduler.Scheduler
 	JobExecutor exector.Executor
 	SettingsDao dao.JobSettingDao
 }

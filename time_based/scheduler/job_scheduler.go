@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type TimeBasedScheduler interface {
+type Scheduler interface {
 	Schedule(time time.Time, jobName, filename string)
 }
 
