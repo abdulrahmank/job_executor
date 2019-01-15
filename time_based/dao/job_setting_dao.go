@@ -18,6 +18,7 @@ type JobSettingDao interface {
 	DeleteJob(jobName string)
 	GetFileName(jobName string) string
 	SaveEventBasedJob(jobName, fileName, eventName string)
+	GetJobsForEvent(eventName string) []Job
 }
 
 type JobSettingDaoImpl struct{}
@@ -163,6 +164,27 @@ func (j *JobSettingDaoImpl) GetFileName(jobName string) string {
 		log.Fatalf("Unable to scan %s\n", e.Error())
 	}
 	return result
+}
+
+func (j *JobSettingDaoImpl) GetJobsForEvent(eventName string) []Job {
+	if e := getDB(); e != nil {
+		return nil
+	}
+	rows, e := db.Query("SELECT j.job_name, j.file_name FROM job j LEFT JOIN event_job_mappings e ON j.job_name=e.job_name "+
+		"WHERE e.event=$1", eventName)
+
+	if e != nil {
+		log.Fatalf("Unable to query for day: %s\n", e.Error())
+	}
+	jobs := make([]Job, 0)
+	for rows.Next() {
+		job := Job{}
+		if e = rows.Scan(&job.JobName, &job.FileName); e != nil {
+			log.Fatalf("%v\n", e)
+		}
+		jobs = append(jobs, job)
+	}
+	return jobs
 }
 
 func getDB() error {

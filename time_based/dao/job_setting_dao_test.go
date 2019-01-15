@@ -267,3 +267,27 @@ func TestJobSettingDaoImpl_SaveEventBasedJob(t *testing.T) {
 		t.Errorf("Expected %s but was %s", evenName, actualEventName)
 	}
 }
+
+func TestJobSettingDaoImpl_GetJobsForEvent(t *testing.T) {
+	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
+	db.Exec("TRUNCATE job")
+	db.Exec("TRUNCATE event_job_mappings")
+	dao := JobSettingDaoImpl{}
+	evenName := "event"
+	dao.SaveEventBasedJob("1", "1.sh", evenName)
+	dao.SaveEventBasedJob("2", "2.sh", evenName)
+
+	jobs := dao.GetJobsForEvent(evenName)
+
+	expectedJobNames := []string{"1", "2"}
+	expectedFileNames := []string{"1.sh", "2.sh"}
+
+	for i, job := range jobs {
+		if expectedJobNames[i] != job.JobName {
+			t.Errorf("Expected Jobname %s, but was %s\n", expectedJobNames[i], job.JobName)
+		}
+		if expectedFileNames[i] != job.FileName {
+			t.Errorf("Expected Filename %s, but was %s\n", expectedFileNames[i], job.FileName)
+		}
+	}
+}
