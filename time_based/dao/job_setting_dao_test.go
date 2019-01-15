@@ -44,8 +44,9 @@ func TestJobSettingDaoImpl_SaveTimedJob(t *testing.T) {
 	db.Exec("TRUNCATE job")
 	db.Exec("TRUNCATE time_settings")
 	db.Exec("TRUNCATE job_status")
+	dao.SaveJob(jobName, fileName)
 
-	dao.SaveTimedJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks)
+	dao.SaveTimedJob(jobName, timeSlots, daysInWeek, numberOfWeeks)
 
 	rows, _ := db.Query("SELECT j.job_name, t.time_slots, t.days, j.file_name, t.remaining_weeks FROM job j " +
 		"LEFT JOIN time_settings t ON t.job_name=j.job_name WHERE j.job_name = 'helloWorld'")
@@ -103,10 +104,13 @@ func TestJobSettingDaoImpl_GetJobsFor(t *testing.T) {
 		db.Exec("TRUNCATE job")
 		db.Exec("TRUNCATE time_settings")
 		db.Exec("TRUNCATE job_status")
+		dao.SaveJob("1", "1.sh")
+		dao.SaveJob("2", "2.sh")
+		dao.SaveJob("3", "3.sh")
 
-		dao.SaveTimedJob("1", "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
-		dao.SaveTimedJob("2", "08:00PM,10:00AM", "tue,fri", "2.sh", 2)
-		dao.SaveTimedJob("3", "08:00PM,10:00AM", "wed", "3.sh", 2)
+		dao.SaveTimedJob("1", "08:00PM,10:00AM", "mon,wed,thu", 2)
+		dao.SaveTimedJob("2", "08:00PM,10:00AM", "tue,fri", 2)
+		dao.SaveTimedJob("3", "08:00PM,10:00AM", "wed", 2)
 
 		expectedJobNames := []string{"1", "3"}
 		expectedFileNames := []string{"1.sh", "3.sh"}
@@ -130,8 +134,9 @@ func TestJobSettingDaoImpl_GetJobsFor(t *testing.T) {
 		db.Exec("TRUNCATE job")
 		db.Exec("TRUNCATE time_settings")
 		db.Exec("TRUNCATE job_status")
+		dao.SaveJob("1", "4.h")
 
-		dao.SaveTimedJob("1", "08:00PM,10:00AM", "wed", "4.sh", 0)
+		dao.SaveTimedJob("1", "08:00PM,10:00AM", "wed", 0)
 
 		jobs := dao.GetJobsFor("wed")
 
@@ -149,7 +154,8 @@ func TestJobSettingDaoImpl_SetJobStatus(t *testing.T) {
 	db.Exec("TRUNCATE job_status")
 
 	dao := JobSettingDaoImpl{}
-	dao.SaveTimedJob("1", "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
+	dao.SaveJob("1", "1.sh")
+	dao.SaveTimedJob("1", "08:00PM,10:00AM", "mon,wed,thu", 2)
 
 	dao.SetJobStatus("1", STATUS_SCHEDULED)
 
@@ -176,7 +182,8 @@ func TestJobSettingDaoImpl_DecrementRemainingWeeks(t *testing.T) {
 
 	dao := JobSettingDaoImpl{}
 	jobName := "1"
-	dao.SaveTimedJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
+	dao.SaveJob(jobName, "1.sh")
+	dao.SaveTimedJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", 2)
 
 	dao.DecrementRemainingWeeks(jobName)
 
@@ -200,7 +207,8 @@ func TestJobSettingDaoImpl_DeleteJob(t *testing.T) {
 
 	dao := JobSettingDaoImpl{}
 	jobName := "1"
-	dao.SaveTimedJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
+	dao.SaveJob(jobName, "1.sh")
+	dao.SaveTimedJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", 2)
 	dao.SaveEventBasedJob(jobName, "1.sh", "event")
 
 	dao.DeleteJob(jobName)
@@ -250,7 +258,8 @@ func TestJobSettingDaoImpl_GetFileName(t *testing.T) {
 	dao := JobSettingDaoImpl{}
 	jobName := "1"
 	jobFileName := "1.sh"
-	dao.SaveTimedJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", jobFileName, 2)
+	dao.SaveJob(jobName, jobFileName)
+	dao.SaveTimedJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", 2)
 
 	fileName := dao.GetFileName(jobName)
 

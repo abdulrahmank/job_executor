@@ -12,7 +12,7 @@ import (
 
 type JobSettingDao interface {
 	SaveJob(jobName, fileName string)
-	SaveTimedJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int)
+	SaveTimedJob(jobName, timeSlots, daysInWeek string, numberOfWeeks int)
 	GetJobsFor(day string) []TimeBasedJob
 	SetJobStatus(jobName, status string)
 	DecrementRemainingWeeks(jobName string)
@@ -60,7 +60,7 @@ func (j *JobSettingDaoImpl) SaveJob(jobName, fileName string) {
 	}
 }
 
-func (j *JobSettingDaoImpl) SaveTimedJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int) {
+func (j *JobSettingDaoImpl) SaveTimedJob(jobName, timeSlots, daysInWeek string, numberOfWeeks int) {
 	if e := getDB(); e != nil {
 		return
 	}
@@ -69,11 +69,6 @@ func (j *JobSettingDaoImpl) SaveTimedJob(jobName, timeSlots, daysInWeek, fileNam
 	timeSlotSlice := strings.Split(timeSlots, ",")
 	daysInWeekSlice := strings.Split(daysInWeek, ",")
 	_, e := db.Exec(
-		"INSERT INTO job (job_name, file_name) VALUES ($1, $2)", jobName, fileName)
-	if e != nil {
-		log.Panicf("%v\n", e)
-	}
-	_, e = db.Exec(
 		"INSERT INTO time_settings (job_name, time_slots, days, remaining_weeks) VALUES ($1, $2, $3, $4)", jobName, pq.Array(timeSlotSlice), pq.Array(daysInWeekSlice), numberOfWeeks)
 	if e != nil {
 		log.Panicf("%v\n", e)

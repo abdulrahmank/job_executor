@@ -44,6 +44,26 @@ func TestPersistor_DeleteJob(t *testing.T) {
 	persistor.DeleteJob(jobName)
 }
 
+func TestPersistor_ConfigureTimeBasedJob(t *testing.T) {
+
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockFileDao := mocks.NewMockFileDao(mockCtrl)
+	mockSettingsDao := mocks.NewMockJobSettingDao(mockCtrl)
+
+	persistor := &Persistor{FileDao: mockFileDao, SettingDao: mockSettingsDao}
+	jobName := "hw"
+	timeSlots := "10:00,11:00"
+	daysInWeek := "wed,fri"
+	numberOfWeeks := 4
+
+	mockSettingsDao.EXPECT().SaveTimedJob(jobName, timeSlots, daysInWeek, numberOfWeeks)
+
+	persistor.ConfigureTimeBasedJob(jobName, timeSlots, daysInWeek, numberOfWeeks)
+
+}
+
 func TestPersistor_SaveEvenBasedJob(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()

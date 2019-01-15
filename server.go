@@ -8,5 +8,6 @@ import (
 
 func main() {
 	http.HandleFunc("/jobs/", handler.JobHandler)
+	http.HandleFunc("/jobs/config/", handler.JobConfigHandler)
 	log.Panic(http.ListenAndServe(":8082", nil))
 }

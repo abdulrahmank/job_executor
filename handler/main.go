@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/abdulrahmank/job_executor/time_based/dao"
 	"github.com/abdulrahmank/job_executor/time_based/exector"
 	"github.com/abdulrahmank/job_executor/time_based/orchestrator"
@@ -10,6 +11,15 @@ import (
 	"net/http"
 	"time"
 )
+
+type Config struct {
+	JobType       *string `json:"type"`
+	JobName       *string `json:"jobName"`
+	EventName     *string `json:"evenName"`
+	TimeSlots     *string `json:"timeSlots"`
+	DaysInWeek    *string `json:"days"`
+	NumberOfWeeks *int    `json:"week"`
+}
 
 var jobOrchestrator *orchestrator.JobOrchestrator
 var jobPersistor *persistor.Persistor
@@ -73,6 +83,32 @@ func JobHandler(w http.ResponseWriter, r *http.Request) {
 		break
 	}
 
+}
+
+func JobConfigHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "PUT":
+		decoder := json.NewDecoder(r.Body)
+		config := Config{}
+		if err := decoder.Decode(&config); err != nil {
+			log.Panicf("Error parsing config json %v", err)
+		}
+		switch *config.JobType {
+		case "time":
+			jobPersistor := getPersistor()
+			if config.JobName == nil || config.TimeSlots == nil || config.DaysInWeek == nil ||
+				config.NumberOfWeeks == nil {
+				log.Panic("Config options can't be nil")
+			}
+			jobPersistor.ConfigureTimeBasedJob(*config.JobName, *config.TimeSlots, *config.DaysInWeek,
+				*config.NumberOfWeeks)
+			jobOrchestrator := getOrchestrator()
+			jobOrchestrator.SyncJobs()
+			break
+		}
+
+		break
+	}
 }
 
 func getOrchestrator() *orchestrator.JobOrchestrator {

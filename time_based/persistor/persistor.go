@@ -22,3 +22,7 @@ func (p *Persistor) SaveEvenBasedJob(jobName, fileName, eventName string, jobFil
 	p.FileDao.SaveFile(fileName, jobFileContent)
 	p.SettingDao.SaveEventBasedJob(jobName, fileName, eventName)
 }
+
+func (p *Persistor) ConfigureTimeBasedJob(jobName, timeSlots, daysInWeek string, numberOfWeeks int) {
+	p.SettingDao.SaveTimedJob(jobName, timeSlots, daysInWeek, numberOfWeeks)
+}

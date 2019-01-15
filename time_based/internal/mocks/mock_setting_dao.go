@@ -124,15 +124,15 @@ func (mr *MockJobSettingDaoMockRecorder) SaveJob(arg0, arg1 interface{}) *gomock
 }
 
 // SaveTimedJob mocks base method
-func (m *MockJobSettingDao) SaveTimedJob(arg0, arg1, arg2, arg3 string, arg4 int) {
+func (m *MockJobSettingDao) SaveTimedJob(arg0, arg1, arg2 string, arg3 int) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SaveTimedJob", arg0, arg1, arg2, arg3, arg4)
+	m.ctrl.Call(m, "SaveTimedJob", arg0, arg1, arg2, arg3)
 }
 
 // SaveTimedJob indicates an expected call of SaveTimedJob
-func (mr *MockJobSettingDaoMockRecorder) SaveTimedJob(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+func (mr *MockJobSettingDaoMockRecorder) SaveTimedJob(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveTimedJob", reflect.TypeOf((*MockJobSettingDao)(nil).SaveTimedJob), arg0, arg1, arg2, arg3, arg4)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveTimedJob", reflect.TypeOf((*MockJobSettingDao)(nil).SaveTimedJob), arg0, arg1, arg2, arg3)
 }
 
 // SetJobStatus mocks base method
