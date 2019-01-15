@@ -22,7 +22,6 @@ type JobSettingDao interface {
 type JobSettingDaoImpl struct{}
 
 type JobSettings struct {
-	Id            int
 	JobName       string
 	TimeSlots     []string
 	DaysInWeek    []string
@@ -63,7 +62,7 @@ func (j *JobSettingDaoImpl) GetJobsFor(day string) []JobSettings {
 	if e := getDB(); e != nil {
 		return nil
 	}
-	rows, e := db.Query("SELECT j.id, j.job_name, j.time_slots, j.days, j.file_name, j.remaining_weeks "+
+	rows, e := db.Query("SELECT j.job_name, j.time_slots, j.days, j.file_name, j.remaining_weeks "+
 		"FROM job_settings j LEFT JOIN job_status s ON j.job_name=s.job_name  WHERE days @> ARRAY[$1]::text[] "+
 		"AND j.remaining_weeks > 0 AND s.status = $2", day, STATUS_NOT_PICKED)
 	if e != nil {
@@ -72,7 +71,7 @@ func (j *JobSettingDaoImpl) GetJobsFor(day string) []JobSettings {
 	jobs := make([]JobSettings, 0)
 	for rows.Next() {
 		j := JobSettings{}
-		if e = rows.Scan(&j.Id, &j.JobName, pq.Array(&j.TimeSlots), pq.Array(&j.DaysInWeek), &j.FileName, &j.NumberOfWeeks); e != nil {
+		if e = rows.Scan(&j.JobName, pq.Array(&j.TimeSlots), pq.Array(&j.DaysInWeek), &j.FileName, &j.NumberOfWeeks); e != nil {
 			log.Fatalf("%v\n", e)
 		}
 		jobs = append(jobs, j)

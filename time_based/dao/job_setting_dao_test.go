@@ -26,7 +26,7 @@ func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
 
 	settings := JobSettings{}
 	rows.Next()
-	if e := rows.Scan(&settings.Id, &settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.FileName, &settings.NumberOfWeeks); e != nil {
+	if e := rows.Scan(&settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.FileName, &settings.NumberOfWeeks); e != nil {
 		log.Fatal(e)
 	}
 
@@ -149,7 +149,7 @@ func TestJobSettingDaoImpl_DecrementRemainingWeeks(t *testing.T) {
 	rows, _ := db.Query("SELECT * FROM job_settings WHERE job_name = $1", jobName)
 	rows.Next()
 	settings := JobSettings{}
-	if e := rows.Scan(&settings.Id, &settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.FileName, &settings.NumberOfWeeks); e != nil {
+	if e := rows.Scan(&settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.FileName, &settings.NumberOfWeeks); e != nil {
 		log.Fatal(e)
 	}
 	if settings.NumberOfWeeks != 1 {
