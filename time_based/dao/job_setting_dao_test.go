@@ -16,12 +16,14 @@ func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
 	numberOfWeeks := 2
 
 	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
-	db.Exec("TRUNCATE job_settings")
+	db.Exec("TRUNCATE job")
+	db.Exec("TRUNCATE time_settings")
 	db.Exec("TRUNCATE job_status")
 
 	dao.SaveJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks)
 
-	rows, _ := db.Query("SELECT * FROM job_settings WHERE job_name = 'helloWorld'")
+	rows, _ := db.Query("SELECT j.job_name, t.time_slots, t.days, j.file_name, t.remaining_weeks FROM job j " +
+		"LEFT JOIN time_settings t ON t.job_name=j.job_name WHERE j.job_name = 'helloWorld'")
 	statusRows, _ := db.Query("SELECT * FROM job_status")
 
 	settings := JobSettings{}
@@ -72,7 +74,8 @@ func TestJobSettingDaoImpl_GetJobsFor(t *testing.T) {
 	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
 	dao := JobSettingDaoImpl{}
 	t.Run("Should get jobs for that day", func(t *testing.T) {
-		db.Exec("TRUNCATE job_settings")
+		db.Exec("TRUNCATE job")
+		db.Exec("TRUNCATE time_settings")
 		db.Exec("TRUNCATE job_status")
 
 		dao.SaveJob("1", "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
@@ -98,8 +101,10 @@ func TestJobSettingDaoImpl_GetJobsFor(t *testing.T) {
 	})
 
 	t.Run("Should not fetch job if remaining weeks is 0", func(t *testing.T) {
-		db.Exec("TRUNCATE job_settings")
+		db.Exec("TRUNCATE job")
+		db.Exec("TRUNCATE time_settings")
 		db.Exec("TRUNCATE job_status")
+
 
 		dao.SaveJob("1", "08:00PM,10:00AM", "wed", "4.sh", 0)
 
@@ -114,8 +119,10 @@ func TestJobSettingDaoImpl_GetJobsFor(t *testing.T) {
 
 func TestJobSettingDaoImpl_SetJobStatus(t *testing.T) {
 	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
-	db.Exec("TRUNCATE job_settings")
+	db.Exec("TRUNCATE job")
+	db.Exec("TRUNCATE time_settings")
 	db.Exec("TRUNCATE job_status")
+
 	dao := JobSettingDaoImpl{}
 	dao.SaveJob("1", "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
 
@@ -138,18 +145,20 @@ func TestJobSettingDaoImpl_SetJobStatus(t *testing.T) {
 
 func TestJobSettingDaoImpl_DecrementRemainingWeeks(t *testing.T) {
 	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
-	db.Exec("TRUNCATE job_settings")
+	db.Exec("TRUNCATE job")
+	db.Exec("TRUNCATE time_settings")
 	db.Exec("TRUNCATE job_status")
+
 	dao := JobSettingDaoImpl{}
 	jobName := "1"
 	dao.SaveJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
 
 	dao.DecrementRemainingWeeks(jobName)
 
-	rows, _ := db.Query("SELECT * FROM job_settings WHERE job_name = $1", jobName)
+	rows, _ := db.Query("SELECT * FROM time_settings WHERE job_name = $1", jobName)
 	rows.Next()
 	settings := JobSettings{}
-	if e := rows.Scan(&settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.FileName, &settings.NumberOfWeeks); e != nil {
+	if e := rows.Scan(&settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.NumberOfWeeks); e != nil {
 		log.Fatal(e)
 	}
 	if settings.NumberOfWeeks != 1 {
@@ -159,18 +168,22 @@ func TestJobSettingDaoImpl_DecrementRemainingWeeks(t *testing.T) {
 
 func TestJobSettingDaoImpl_DeleteJob(t *testing.T) {
 	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
-	db.Exec("TRUNCATE job_settings")
+	db.Exec("TRUNCATE job")
+	db.Exec("TRUNCATE time_settings")
 	db.Exec("TRUNCATE job_status")
+
 	dao := JobSettingDaoImpl{}
 	jobName := "1"
 	dao.SaveJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
 
 	dao.DeleteJob(jobName)
 
-	rows, _ := db.Query("SELECT COUNT(*) FROM job_settings WHERE job_name = '1'")
+	rows, _ := db.Query("SELECT COUNT(*) FROM job WHERE job_name = '1'")
+	settingRows, _ := db.Query("SELECT COUNT(*) FROM time_settings WHERE job_name = '1'")
 	statusRows, _ := db.Query("SELECT COUNT(*) FROM job_status WHERE job_name = '1'")
 	rows.Next()
 	statusRows.Next()
+	settingRows.Next()
 
 	var count int
 	if e := rows.Scan(&count); e != nil {
@@ -185,12 +198,20 @@ func TestJobSettingDaoImpl_DeleteJob(t *testing.T) {
 	if count != 0 {
 		t.Errorf("Expected %d but was %d", 0, count)
 	}
+	if e := settingRows.Scan(&count); e != nil {
+		log.Fatal(e)
+	}
+	if count != 0 {
+		t.Errorf("Expected %d but was %d", 0, count)
+	}
 }
 
 func TestJobSettingDaoImpl_GetFileName(t *testing.T) {
 	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
-	db.Exec("TRUNCATE job_settings")
+	db.Exec("TRUNCATE job")
+	db.Exec("TRUNCATE time_settings")
 	db.Exec("TRUNCATE job_status")
+
 	dao := JobSettingDaoImpl{}
 	jobName := "1"
 	jobFileName := "1.sh"

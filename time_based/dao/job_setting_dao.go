@@ -45,7 +45,12 @@ func (j *JobSettingDaoImpl) SaveJob(jobName, timeSlots, daysInWeek, fileName str
 	timeSlotSlice := strings.Split(timeSlots, ",")
 	daysInWeekSlice := strings.Split(daysInWeek, ",")
 	result, e := db.Exec(
-		"INSERT INTO job_settings (job_name, time_slots, days, file_name, remaining_weeks) VALUES ($1, $2, $3, $4, $5)", jobName, pq.Array(timeSlotSlice), pq.Array(daysInWeekSlice), fileName, numberOfWeeks)
+		"INSERT INTO job (job_name, file_name) VALUES ($1, $2)", jobName, fileName)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
+	result, e = db.Exec(
+		"INSERT INTO time_settings (job_name, time_slots, days, remaining_weeks) VALUES ($1, $2, $3, $4)", jobName, pq.Array(timeSlotSlice), pq.Array(daysInWeekSlice), numberOfWeeks)
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}
@@ -62,9 +67,9 @@ func (j *JobSettingDaoImpl) GetJobsFor(day string) []JobSettings {
 	if e := getDB(); e != nil {
 		return nil
 	}
-	rows, e := db.Query("SELECT j.job_name, j.time_slots, j.days, j.file_name, j.remaining_weeks "+
-		"FROM job_settings j LEFT JOIN job_status s ON j.job_name=s.job_name  WHERE days @> ARRAY[$1]::text[] "+
-		"AND j.remaining_weeks > 0 AND s.status = $2", day, STATUS_NOT_PICKED)
+	rows, e := db.Query("SELECT j.job_name, t.time_slots, t.days, j.file_name, t.remaining_weeks FROM job j " +
+		"LEFT JOIN time_settings t ON t.job_name=j.job_name LEFT JOIN job_status s ON s.job_name=j.job_name" +
+		" WHERE days @> ARRAY[$1]::text[] AND t.remaining_weeks > 0 AND s.status = $2", day, STATUS_NOT_PICKED)
 	if e != nil {
 		log.Fatalf("Unable to query for day: %s\n", e.Error())
 	}
@@ -93,8 +98,8 @@ func (j *JobSettingDaoImpl) DecrementRemainingWeeks(jobName string) {
 	if e := getDB(); e != nil {
 		return
 	}
-	_, e := db.Exec("update job_settings set remaining_weeks = "+
-		"(select remaining_weeks from job_settings where job_name=$1) - 1 where job_name=$1", jobName)
+	_, e := db.Exec("update time_settings set remaining_weeks = "+
+		"(select remaining_weeks from time_settings where job_name=$1) - 1 where job_name=$1", jobName)
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}
@@ -104,7 +109,11 @@ func (j *JobSettingDaoImpl) DeleteJob(jobName string) {
 	if e := getDB(); e != nil {
 		return
 	}
-	_, e := db.Exec("DELETE FROM job_settings WHERE job_name=$1", jobName)
+	_, e := db.Exec("DELETE FROM job WHERE job_name=$1", jobName)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
+	_, e = db.Exec("DELETE FROM time_settings WHERE job_name=$1", jobName)
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}
@@ -118,7 +127,7 @@ func (j *JobSettingDaoImpl) GetFileName(jobName string) string {
 	if e := getDB(); e != nil {
 		return ""
 	}
-	rows, e := db.Query("SELECT file_name FROM job_settings WHERE job_name=$1", jobName)
+	rows, e := db.Query("SELECT file_name FROM job WHERE job_name=$1", jobName)
 	if e != nil {
 		log.Fatalf("Unable to query %s\n", e.Error())
 	}
