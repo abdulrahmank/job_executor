@@ -9,7 +9,7 @@ type Persistor struct {
 
 func (p *Persistor) SaveJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int, jobFileContent []byte) {
 	p.FileDao.SaveFile(fileName, jobFileContent)
-	p.SettingDao.SaveJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks)
+	p.SettingDao.SaveTimedJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks)
 }
 
 func (p *Persistor) DeleteJob(jobName string) {

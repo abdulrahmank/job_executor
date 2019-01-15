@@ -23,7 +23,7 @@ func TestSaveJob(t *testing.T) {
 		numberOfWeeks := 4
 
 		mockFileDao.EXPECT().SaveFile(fileName, content)
-		mockSettingsDao.EXPECT().SaveJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks)
+		mockSettingsDao.EXPECT().SaveTimedJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks)
 
 		persistor.SaveJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks, content)
 	})

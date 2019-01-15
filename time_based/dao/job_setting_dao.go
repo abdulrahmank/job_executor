@@ -11,7 +11,7 @@ import (
 )
 
 type JobSettingDao interface {
-	SaveJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int)
+	SaveTimedJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int)
 	GetJobsFor(day string) []JobSettings
 	SetJobStatus(jobName, status string)
 	DecrementRemainingWeeks(jobName string)
@@ -36,7 +36,7 @@ const STATUS_SCHEDULED = "scheduled"
 const STATUS_COMPLETED = "completed"
 
 //TODO: Think of separating remaining weeks from job_settings table
-func (j *JobSettingDaoImpl) SaveJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int) {
+func (j *JobSettingDaoImpl) SaveTimedJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int) {
 	if e := getDB(); e != nil {
 		return
 	}
