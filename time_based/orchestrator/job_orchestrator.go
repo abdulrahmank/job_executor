@@ -43,6 +43,10 @@ func (j *JobOrchestrator) ExecuteJob(jobName string) {
 	}
 }
 
+func (j *JobOrchestrator) ResetJobStatus() {
+	j.SettingsDao.ResetJobStatus(dao.STATUS_COMPLETED, dao.STATUS_NOT_PICKED)
+}
+
 func getTime(timeSlot string) time.Time {
 	parsedTime, _ := time.Parse(constants.TIME_LAYOUT, timeSlot)
 	now := time.Now()

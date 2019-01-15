@@ -47,6 +47,7 @@ func syncJobsDaily() {
 		done := make(chan bool)
 		select {
 		case <-syncScheduleCh:
+			jobOrchestrator.ResetJobStatus()
 			jobOrchestrator.SyncJobs()
 			done <- true
 			break

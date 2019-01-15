@@ -99,6 +99,18 @@ func (mr *MockJobSettingDaoMockRecorder) GetJobsForEvent(arg0 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJobsForEvent", reflect.TypeOf((*MockJobSettingDao)(nil).GetJobsForEvent), arg0)
 }
 
+// ResetJobStatus mocks base method
+func (m *MockJobSettingDao) ResetJobStatus(arg0, arg1 string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ResetJobStatus", arg0, arg1)
+}
+
+// ResetJobStatus indicates an expected call of ResetJobStatus
+func (mr *MockJobSettingDaoMockRecorder) ResetJobStatus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetJobStatus", reflect.TypeOf((*MockJobSettingDao)(nil).ResetJobStatus), arg0, arg1)
+}
+
 // SaveEventBasedJob mocks base method
 func (m *MockJobSettingDao) SaveEventBasedJob(arg0, arg1 string) {
 	m.ctrl.T.Helper()

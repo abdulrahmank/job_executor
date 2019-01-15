@@ -337,3 +337,33 @@ func TestJobSettingDaoImpl_GetJobsForEvent(t *testing.T) {
 		}
 	}
 }
+
+func TestJobSettingDaoImpl_ResetJobStatus(t *testing.T) {
+	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
+	db.Exec("TRUNCATE job")
+	db.Exec("TRUNCATE time_settings")
+	db.Exec("TRUNCATE job_status")
+
+	dao := JobSettingDaoImpl{}
+	jobName := "1"
+	dao.SaveJob(jobName, "1.sh")
+	dao.SaveTimedJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", 2)
+	dao.SetJobStatus(jobName, STATUS_COMPLETED)
+
+	dao.ResetJobStatus(STATUS_COMPLETED, STATUS_NOT_PICKED)
+
+	rows, e := db.Query("SELECT * FROM job_status")
+	if e != nil {
+		t.Errorf("%v\n", e)
+	}
+
+	var actualJobName, jobStatus string
+	rows.Next()
+
+	if e = rows.Scan(&actualJobName, &jobStatus); e != nil {
+		t.Errorf("%v\n", e)
+	}
+	if jobStatus != STATUS_NOT_PICKED {
+		t.Errorf("Expect status to be %s, but was %s", STATUS_NOT_PICKED, jobStatus)
+	}
+}

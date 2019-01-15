@@ -20,6 +20,7 @@ type JobSettingDao interface {
 	GetFileName(jobName string) string
 	SaveEventBasedJob(jobName, eventName string)
 	GetJobsForEvent(eventName string) []Job
+	ResetJobStatus(fromStatus string, toStatus string)
 }
 
 type JobSettingDaoImpl struct{}
@@ -190,6 +191,16 @@ func (j *JobSettingDaoImpl) GetJobsForEvent(eventName string) []Job {
 		jobs = append(jobs, job)
 	}
 	return jobs
+}
+
+func (j *JobSettingDaoImpl) ResetJobStatus(fromStatus string, toStatus string) {
+	if e := getDB(); e != nil {
+		return
+	}
+	_, e := db.Exec("UPDATE job_status SET status=$1 WHERE status=$2", toStatus, fromStatus)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
 }
 
 func getDB() error {

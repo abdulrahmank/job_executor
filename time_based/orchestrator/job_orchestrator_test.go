@@ -65,3 +65,14 @@ func TestJobOrchestrator_ExecuteJob(t *testing.T) {
 
 	orchestrator.ExecuteJob(jobName)
 }
+
+func TestJobOrchestrator_ResetJobStatus(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	mockSettingDao := mocks.NewMockJobSettingDao(mockCtrl)
+	orchestrator := JobOrchestrator{SettingsDao: mockSettingDao}
+
+	mockSettingDao.EXPECT().ResetJobStatus(dao.STATUS_COMPLETED, dao.STATUS_NOT_PICKED)
+
+	orchestrator.ResetJobStatus()
+}
