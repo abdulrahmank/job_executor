@@ -26,7 +26,7 @@ func TestJobSettingDaoImpl_SaveTimedJob(t *testing.T) {
 		"LEFT JOIN time_settings t ON t.job_name=j.job_name WHERE j.job_name = 'helloWorld'")
 	statusRows, _ := db.Query("SELECT * FROM job_status")
 
-	settings := JobSettings{}
+	settings := TimeBasedJob{}
 	rows.Next()
 	if e := rows.Scan(&settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.FileName, &settings.NumberOfWeeks); e != nil {
 		log.Fatal(e)
@@ -157,7 +157,7 @@ func TestJobSettingDaoImpl_DecrementRemainingWeeks(t *testing.T) {
 
 	rows, _ := db.Query("SELECT * FROM time_settings WHERE job_name = $1", jobName)
 	rows.Next()
-	settings := JobSettings{}
+	settings := TimeBasedJob{}
 	if e := rows.Scan(&settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.NumberOfWeeks); e != nil {
 		log.Fatal(e)
 	}

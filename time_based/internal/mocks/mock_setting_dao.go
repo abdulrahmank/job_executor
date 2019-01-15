@@ -72,10 +72,10 @@ func (mr *MockJobSettingDaoMockRecorder) GetFileName(arg0 interface{}) *gomock.C
 }
 
 // GetJobsFor mocks base method
-func (m *MockJobSettingDao) GetJobsFor(arg0 string) []dao.JobSettings {
+func (m *MockJobSettingDao) GetJobsFor(arg0 string) []dao.TimeBasedJob {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetJobsFor", arg0)
-	ret0, _ := ret[0].([]dao.JobSettings)
+	ret0, _ := ret[0].([]dao.TimeBasedJob)
 	return ret0
 }
 
@@ -83,6 +83,18 @@ func (m *MockJobSettingDao) GetJobsFor(arg0 string) []dao.JobSettings {
 func (mr *MockJobSettingDaoMockRecorder) GetJobsFor(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJobsFor", reflect.TypeOf((*MockJobSettingDao)(nil).GetJobsFor), arg0)
+}
+
+// SaveEventBasedJob mocks base method
+func (m *MockJobSettingDao) SaveEventBasedJob(arg0, arg1, arg2 string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SaveEventBasedJob", arg0, arg1, arg2)
+}
+
+// SaveEventBasedJob indicates an expected call of SaveEventBasedJob
+func (mr *MockJobSettingDaoMockRecorder) SaveEventBasedJob(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveEventBasedJob", reflect.TypeOf((*MockJobSettingDao)(nil).SaveEventBasedJob), arg0, arg1, arg2)
 }
 
 // SaveTimedJob mocks base method

@@ -12,7 +12,7 @@ import (
 
 type JobSettingDao interface {
 	SaveTimedJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int)
-	GetJobsFor(day string) []JobSettings
+	GetJobsFor(day string) []TimeBasedJob
 	SetJobStatus(jobName, status string)
 	DecrementRemainingWeeks(jobName string)
 	DeleteJob(jobName string)
@@ -22,7 +22,7 @@ type JobSettingDao interface {
 
 type JobSettingDaoImpl struct{}
 
-type JobSettings struct {
+type TimeBasedJob struct {
 	JobName       string
 	TimeSlots     []string
 	DaysInWeek    []string
@@ -76,7 +76,7 @@ func (j *JobSettingDaoImpl) SaveEventBasedJob(jobName, fileName, eventName strin
 	}
 }
 
-func (j *JobSettingDaoImpl) GetJobsFor(day string) []JobSettings {
+func (j *JobSettingDaoImpl) GetJobsFor(day string) []TimeBasedJob {
 	if e := getDB(); e != nil {
 		return nil
 	}
@@ -86,9 +86,9 @@ func (j *JobSettingDaoImpl) GetJobsFor(day string) []JobSettings {
 	if e != nil {
 		log.Fatalf("Unable to query for day: %s\n", e.Error())
 	}
-	jobs := make([]JobSettings, 0)
+	jobs := make([]TimeBasedJob, 0)
 	for rows.Next() {
-		j := JobSettings{}
+		j := TimeBasedJob{}
 		if e = rows.Scan(&j.JobName, pq.Array(&j.TimeSlots), pq.Array(&j.DaysInWeek), &j.FileName, &j.NumberOfWeeks); e != nil {
 			log.Fatalf("%v\n", e)
 		}

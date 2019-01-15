@@ -18,7 +18,7 @@ func TestJobOrchestrator(t *testing.T) {
 			SettingsDao: mockSettingDao}
 		now := time.Now()
 		today := now.Weekday().String()
-		jobs := []dao.JobSettings{{JobName: "job1", TimeSlots: []string{"10:00AM"}, FileName: "1.sh"},
+		jobs := []dao.TimeBasedJob{{JobName: "job1", TimeSlots: []string{"10:00AM"}, FileName: "1.sh"},
 			{JobName: "job2", TimeSlots: []string{"10:00PM"}, FileName: "2.sh"}}
 		mockSettingDao.EXPECT().GetJobsFor(today).Return(jobs)
 
