@@ -17,6 +17,7 @@ type JobSettingDao interface {
 	DecrementRemainingWeeks(jobName string)
 	DeleteJob(jobName string)
 	GetFileName(jobName string) string
+	SaveEventBasedJob(jobName, fileName, eventName string)
 }
 
 type JobSettingDaoImpl struct{}
@@ -35,7 +36,6 @@ const STATUS_NOT_PICKED = "not_picked"
 const STATUS_SCHEDULED = "scheduled"
 const STATUS_COMPLETED = "completed"
 
-//TODO: Think of separating remaining weeks from job_settings table
 func (j *JobSettingDaoImpl) SaveTimedJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int) {
 	if e := getDB(); e != nil {
 		return
@@ -44,22 +44,35 @@ func (j *JobSettingDaoImpl) SaveTimedJob(jobName, timeSlots, daysInWeek, fileNam
 	defer tx.Commit()
 	timeSlotSlice := strings.Split(timeSlots, ",")
 	daysInWeekSlice := strings.Split(daysInWeek, ",")
-	result, e := db.Exec(
+	_, e := db.Exec(
 		"INSERT INTO job (job_name, file_name) VALUES ($1, $2)", jobName, fileName)
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}
-	result, e = db.Exec(
+	_, e = db.Exec(
 		"INSERT INTO time_settings (job_name, time_slots, days, remaining_weeks) VALUES ($1, $2, $3, $4)", jobName, pq.Array(timeSlotSlice), pq.Array(daysInWeekSlice), numberOfWeeks)
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}
-	result, e = db.Exec("INSERT INTO job_status VALUES ($1, $2)", jobName, STATUS_NOT_PICKED)
+	_, e = db.Exec("INSERT INTO job_status VALUES ($1, $2)", jobName, STATUS_NOT_PICKED)
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}
-	if n, _ := result.RowsAffected(); n != 1 {
-		log.Fatal("Error inserting job")
+}
+
+func (j *JobSettingDaoImpl) SaveEventBasedJob(jobName, fileName, eventName string) {
+	if e := getDB(); e != nil {
+		return
+	}
+	_, e := db.Exec(
+		"INSERT INTO job (job_name, file_name) VALUES ($1, $2)", jobName, fileName)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
+	_, e = db.Exec(
+		"INSERT INTO event_job_mappings (job_name, event) VALUES ($1, $2)", jobName, eventName)
+	if e != nil {
+		log.Panicf("%v\n", e)
 	}
 }
 
@@ -67,8 +80,8 @@ func (j *JobSettingDaoImpl) GetJobsFor(day string) []JobSettings {
 	if e := getDB(); e != nil {
 		return nil
 	}
-	rows, e := db.Query("SELECT j.job_name, t.time_slots, t.days, j.file_name, t.remaining_weeks FROM job j " +
-		"LEFT JOIN time_settings t ON t.job_name=j.job_name LEFT JOIN job_status s ON s.job_name=j.job_name" +
+	rows, e := db.Query("SELECT j.job_name, t.time_slots, t.days, j.file_name, t.remaining_weeks FROM job j "+
+		"LEFT JOIN time_settings t ON t.job_name=j.job_name LEFT JOIN job_status s ON s.job_name=j.job_name"+
 		" WHERE days @> ARRAY[$1]::text[] AND t.remaining_weeks > 0 AND s.status = $2", day, STATUS_NOT_PICKED)
 	if e != nil {
 		log.Fatalf("Unable to query for day: %s\n", e.Error())
