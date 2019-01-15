@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/jobs/", handler.JobHandler)
+	http.HandleFunc("/jobs/create/", handler.JobCreationHandler)
 	http.HandleFunc("/jobs/config/", handler.JobConfigHandler)
+	http.HandleFunc("/jobs/", handler.JobHandler)
 	log.Panic(http.ListenAndServe(":8082", nil))
 }

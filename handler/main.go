@@ -21,6 +21,10 @@ type Config struct {
 	NumberOfWeeks *int    `json:"week"`
 }
 
+type jobActionRequest struct {
+	action string `json:"action"`
+}
+
 var jobOrchestrator *orchestrator.JobOrchestrator
 var jobPersistor *persistor.Persistor
 
@@ -51,7 +55,7 @@ func syncJobsDaily() {
 	}
 }
 
-func JobHandler(w http.ResponseWriter, r *http.Request) {
+func JobCreationHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "PUT":
 		if err := r.ParseForm(); err != nil {
@@ -73,6 +77,25 @@ func JobHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatal("Unable to wrtie to response")
 		}
 		break
+	}
+}
+
+func JobHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		jobName := r.URL.Path[len("/jobs/"):]
+		decoder := json.NewDecoder(r.Body)
+		actionReq := jobActionRequest{}
+		if err := decoder.Decode(&actionReq); err != nil {
+			log.Panicf("Error parsing json %v", err)
+		}
+		switch actionReq.action {
+		case "stop":
+			scheduler.ChannelPool[jobName].CancelCh <- true
+			break
+		}
+		w.WriteHeader(http.StatusOK)
+		break
 	case "GET":
 		log.Println("Not implemented")
 		break
@@ -80,9 +103,9 @@ func JobHandler(w http.ResponseWriter, r *http.Request) {
 		jobName := r.URL.Path[len("/jobs/"):]
 		scheduler.ChannelPool[jobName].CancelCh <- true
 		jobPersistor.DeleteJob(jobName)
+		w.WriteHeader(http.StatusOK)
 		break
 	}
-
 }
 
 func JobConfigHandler(w http.ResponseWriter, r *http.Request) {
