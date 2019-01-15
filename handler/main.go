@@ -47,7 +47,7 @@ func syncJobsDaily() {
 		done := make(chan bool)
 		select {
 		case <-syncScheduleCh:
-			getOrchestrator().SyncJobs()
+			jobOrchestrator.SyncJobs()
 			done <- true
 			break
 		}
@@ -84,7 +84,6 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		eventName := r.URL.Path[len("/event/"):]
-		jobOrchestrator := getOrchestrator()
 		jobOrchestrator.ExecuteJobsForEvent(eventName)
 		break
 	}
@@ -140,7 +139,6 @@ func JobConfigHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			jobPersistor.ConfigureTimeBasedJob(*config.JobName, *config.TimeSlots, *config.DaysInWeek,
 				*config.NumberOfWeeks)
-			jobOrchestrator := getOrchestrator()
 			jobOrchestrator.SyncJobs()
 			break
 		case "event":
