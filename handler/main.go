@@ -8,7 +8,6 @@ import (
 	"github.com/abdulrahmank/job_executor/time_based/scheduler"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -42,19 +41,13 @@ func syncJobsDaily() {
 	}
 }
 
-func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
+func JobHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "PUT":
 		if err := r.ParseForm(); err != nil {
 			log.Println("Couldn't parse form data")
 		}
 		jobName := r.FormValue("name")
-		timeSlots := r.FormValue("time")
-		daysInWeek := r.FormValue("days")
-		numberOfWeeks, err := strconv.Atoi(r.FormValue("weeks"))
-		if err != nil {
-			log.Println("Invalid number of weeks")
-		}
 		file, fileHeader, err := r.FormFile("script")
 		if err != nil {
 			log.Println("Error parsing file")
@@ -63,8 +56,7 @@ func TimedJobScheduler(w http.ResponseWriter, r *http.Request) {
 		if _, err = file.Read(contents); err != nil {
 			log.Println("Error reading file contents")
 		}
-		jobPersistor.SaveJob(jobName, timeSlots, daysInWeek, fileHeader.Filename, numberOfWeeks, contents)
-		jobOrchestrator.SyncJobs()
+		jobPersistor.SaveJob(jobName, fileHeader.Filename, contents)
 
 		w.WriteHeader(http.StatusOK)
 		if _, err := w.Write([]byte("Job saved successfully")); err != nil {

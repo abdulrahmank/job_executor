@@ -16,16 +16,13 @@ func TestSaveJob(t *testing.T) {
 
 		persistor := &Persistor{FileDao: mockFileDao, SettingDao: mockSettingsDao}
 		jobName := "hw"
-		timeSlots := "10:00,11:00"
-		daysInWeek := "wed,fri"
 		fileName := "hw.sh"
 		content := []byte("echo 'hello world'")
-		numberOfWeeks := 4
 
 		mockFileDao.EXPECT().SaveFile(fileName, content)
-		mockSettingsDao.EXPECT().SaveTimedJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks)
+		mockSettingsDao.EXPECT().SaveJob(jobName, fileName)
 
-		persistor.SaveJob(jobName, timeSlots, daysInWeek, fileName, numberOfWeeks, content)
+		persistor.SaveJob(jobName, fileName, content)
 	})
 }
 

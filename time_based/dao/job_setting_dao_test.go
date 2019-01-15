@@ -7,6 +7,31 @@ import (
 	"testing"
 )
 
+func TestJobSettingDaoImpl_SaveJob(t *testing.T) {
+	db, _ = sql.Open("postgres", getPSQlInfo("test", "test", "password"))
+	db.Exec("TRUNCATE job")
+
+	dao := JobSettingDaoImpl{}
+	jobName := "helloWorld"
+	fileName := "helloworld.sh"
+
+	dao.SaveJob(jobName, fileName)
+
+	rows, _ := db.Query("SELECT * FROM job")
+	rows.Next()
+	var actualJobName, actualFileName string
+	if e := rows.Scan(&actualJobName, &actualFileName); e != nil {
+		log.Panic(e)
+	}
+
+	if actualJobName != jobName {
+		t.Errorf("Expected job name %s, but was %s", jobName, actualJobName)
+	}
+	if actualFileName != fileName {
+		t.Errorf("Expected file name %s, but was %s", fileName, actualFileName)
+	}
+}
+
 func TestJobSettingDaoImpl_SaveTimedJob(t *testing.T) {
 	dao := JobSettingDaoImpl{}
 	jobName := "helloWorld"

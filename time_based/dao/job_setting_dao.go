@@ -11,6 +11,7 @@ import (
 )
 
 type JobSettingDao interface {
+	SaveJob(jobName, fileName string)
 	SaveTimedJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int)
 	GetJobsFor(day string) []TimeBasedJob
 	SetJobStatus(jobName, status string)
@@ -48,6 +49,16 @@ var db *sql.DB
 const STATUS_NOT_PICKED = "not_picked"
 const STATUS_SCHEDULED = "scheduled"
 const STATUS_COMPLETED = "completed"
+
+func (j *JobSettingDaoImpl) SaveJob(jobName, fileName string) {
+	if e := getDB(); e != nil {
+		return
+	}
+	_, e := db.Exec("INSERT INTO job values ($1,$2)", jobName, fileName)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
+}
 
 func (j *JobSettingDaoImpl) SaveTimedJob(jobName, timeSlots, daysInWeek, fileName string, numberOfWeeks int) {
 	if e := getDB(); e != nil {
