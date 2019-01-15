@@ -22,7 +22,7 @@ type Config struct {
 }
 
 type jobActionRequest struct {
-	action string `json:"action"`
+	action    string  `json:"action"`
 }
 
 var jobOrchestrator *orchestrator.JobOrchestrator
@@ -80,6 +80,17 @@ func JobCreationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func EventHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		eventName := r.URL.Path[len("/event/"):]
+		jobOrchestrator := getOrchestrator()
+		jobOrchestrator.ExecuteJobsForEvent(eventName)
+		break
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func JobHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
@@ -116,12 +127,13 @@ func JobConfigHandler(w http.ResponseWriter, r *http.Request) {
 		if err := decoder.Decode(&config); err != nil {
 			log.Panicf("Error parsing config json %v", err)
 		}
+		configOptionNil := "Config options can't be nil"
 		switch *config.JobType {
 		case "time":
 			jobPersistor := getPersistor()
 			if config.JobName == nil || config.TimeSlots == nil || config.DaysInWeek == nil ||
 				config.NumberOfWeeks == nil {
-				log.Panic("Config options can't be nil")
+				writeErrorInResponse(w, configOptionNil)
 			}
 			jobPersistor.ConfigureTimeBasedJob(*config.JobName, *config.TimeSlots, *config.DaysInWeek,
 				*config.NumberOfWeeks)
@@ -131,19 +143,26 @@ func JobConfigHandler(w http.ResponseWriter, r *http.Request) {
 		case "event":
 			jobPersistor := getPersistor()
 			if config.JobName == nil || config.EventName == nil {
-				log.Panic("Config options can't be nil")
+				writeErrorInResponse(w, configOptionNil)
 			}
 			jobPersistor.ConfigureEventBasedJob(*config.JobName, *config.EventName)
 			break
 		}
-
+		w.WriteHeader(http.StatusOK)
 		break
 	}
 }
 
+func writeErrorInResponse(w http.ResponseWriter, configOptionNil string) {
+	_, _ = w.Write([]byte(configOptionNil))
+	w.WriteHeader(http.StatusBadRequest)
+	log.Panic(configOptionNil)
+}
+
 func getOrchestrator() *orchestrator.JobOrchestrator {
-	return &orchestrator.JobOrchestrator{Scheduler:
-	&scheduler.TimeBasedSchedulerImpl{Executor: &exector.BashExecutorImp{}},
+	executorImp := &exector.BashExecutorImp{}
+	return &orchestrator.JobOrchestrator{JobExecutor: executorImp,
+		Scheduler:   &scheduler.TimeBasedSchedulerImpl{Executor: executorImp},
 		SettingsDao: &dao.JobSettingDaoImpl{}}
 
 }

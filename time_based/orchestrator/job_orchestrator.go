@@ -3,12 +3,15 @@ package orchestrator
 import (
 	"github.com/abdulrahmank/job_executor/constants"
 	"github.com/abdulrahmank/job_executor/time_based/dao"
+	"github.com/abdulrahmank/job_executor/time_based/exector"
 	"github.com/abdulrahmank/job_executor/time_based/scheduler"
+	"log"
 	"time"
 )
 
 type JobOrchestrator struct {
 	Scheduler   scheduler.TimeBasedScheduler
+	JobExecutor exector.Executor
 	SettingsDao dao.JobSettingDao
 }
 
@@ -19,6 +22,16 @@ func (j *JobOrchestrator) SyncJobs() {
 	for _, job := range jobsForToday {
 		for _, timeSlot := range job.TimeSlots {
 			j.Scheduler.Schedule(getTime(timeSlot), job.JobName(), job.FileName())
+		}
+	}
+}
+
+func (j *JobOrchestrator) ExecuteJobsForEvent(eventName string) {
+	jobsForEvent := j.SettingsDao.GetJobsForEvent(eventName)
+
+	for _, job := range jobsForEvent {
+		if _, e := j.JobExecutor.ExecuteJob(job.JobName, job.FileName); e != nil {
+			log.Panicf("Error running job %s:%v\n", job.JobName, e)
 		}
 	}
 }
