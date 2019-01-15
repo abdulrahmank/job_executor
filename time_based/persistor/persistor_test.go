@@ -47,3 +47,21 @@ func TestPersistor_DeleteJob(t *testing.T) {
 	persistor.DeleteJob(jobName)
 }
 
+func TestPersistor_SaveEvenBasedJob(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockFileDao := mocks.NewMockFileDao(mockCtrl)
+	mockSettingsDao := mocks.NewMockJobSettingDao(mockCtrl)
+
+	persistor := &Persistor{FileDao: mockFileDao, SettingDao: mockSettingsDao}
+	jobName := "hw"
+	fileName := "hw.sh"
+	eventName := "event"
+	content := []byte("echo 'hello world'")
+
+	mockFileDao.EXPECT().SaveFile(fileName, content)
+	mockSettingsDao.EXPECT().SaveEventBasedJob(jobName, fileName, eventName)
+
+	persistor.SaveEvenBasedJob(jobName, fileName, eventName, content)
+}

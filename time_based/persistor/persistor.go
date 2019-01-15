@@ -17,3 +17,8 @@ func (p *Persistor) DeleteJob(jobName string) {
 	p.FileDao.DeleteFile(fileName)
 	p.SettingDao.DeleteJob(jobName)
 }
+
+func (p *Persistor) SaveEvenBasedJob(jobName, fileName, eventName string, jobFileContent []byte) {
+	p.FileDao.SaveFile(fileName, jobFileContent)
+	p.SettingDao.SaveEventBasedJob(jobName, fileName, eventName)
+}
