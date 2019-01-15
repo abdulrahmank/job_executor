@@ -18,7 +18,7 @@ func (j *JobOrchestrator) SyncJobs() {
 
 	for _, job := range jobsForToday {
 		for _, timeSlot := range job.TimeSlots {
-			j.Scheduler.Schedule(getTime(timeSlot), job.JobName, job.FileName)
+			j.Scheduler.Schedule(getTime(timeSlot), job.JobName(), job.FileName())
 		}
 	}
 }

@@ -26,9 +26,10 @@ func TestJobSettingDaoImpl_SaveTimedJob(t *testing.T) {
 		"LEFT JOIN time_settings t ON t.job_name=j.job_name WHERE j.job_name = 'helloWorld'")
 	statusRows, _ := db.Query("SELECT * FROM job_status")
 
-	settings := TimeBasedJob{}
+	job := &Job{}
+	settings := TimeBasedJob{JobVal: job}
 	rows.Next()
-	if e := rows.Scan(&settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.FileName, &settings.NumberOfWeeks); e != nil {
+	if e := rows.Scan(&job.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &job.FileName, &settings.NumberOfWeeks); e != nil {
 		log.Fatal(e)
 	}
 
@@ -42,7 +43,7 @@ func TestJobSettingDaoImpl_SaveTimedJob(t *testing.T) {
 		t.Fail()
 	}
 
-	if settings.FileName != fileName {
+	if settings.FileName() != fileName {
 		t.Error("Filename mismatch")
 		t.Fail()
 	}
@@ -52,7 +53,7 @@ func TestJobSettingDaoImpl_SaveTimedJob(t *testing.T) {
 		t.Fail()
 	}
 
-	if settings.JobName != jobName {
+	if settings.JobName() != jobName {
 		t.Error("Job name mismatch")
 	}
 
@@ -61,7 +62,7 @@ func TestJobSettingDaoImpl_SaveTimedJob(t *testing.T) {
 	if e := statusRows.Scan(&jobNameStatus, &status); e != nil {
 		log.Fatalf("%v\n", e)
 	}
-	if jobNameStatus != settings.JobName {
+	if jobNameStatus != settings.JobName() {
 		t.Error("Job name mismatch")
 	}
 	if status != STATUS_NOT_PICKED {
@@ -91,11 +92,11 @@ func TestJobSettingDaoImpl_GetJobsFor(t *testing.T) {
 			t.Errorf("Count mismatch expected %d but was %d", 2, len(jobs))
 		}
 		for i, job := range jobs {
-			if job.JobName != expectedJobNames[i] {
-				t.Errorf("Name mismatch expected %s but was %s", expectedJobNames[i], job.JobName)
+			if job.JobName() != expectedJobNames[i] {
+				t.Errorf("Name mismatch expected %s but was %s", expectedJobNames[i], job.JobName())
 			}
-			if job.FileName != expectedFileNames[i] {
-				t.Errorf("File name mismatch expected %s but was %s", expectedJobNames[i], job.JobName)
+			if job.FileName() != expectedFileNames[i] {
+				t.Errorf("File name mismatch expected %s but was %s", expectedJobNames[i], job.JobName())
 			}
 		}
 	})
@@ -104,7 +105,6 @@ func TestJobSettingDaoImpl_GetJobsFor(t *testing.T) {
 		db.Exec("TRUNCATE job")
 		db.Exec("TRUNCATE time_settings")
 		db.Exec("TRUNCATE job_status")
-
 
 		dao.SaveTimedJob("1", "08:00PM,10:00AM", "wed", "4.sh", 0)
 
@@ -157,8 +157,9 @@ func TestJobSettingDaoImpl_DecrementRemainingWeeks(t *testing.T) {
 
 	rows, _ := db.Query("SELECT * FROM time_settings WHERE job_name = $1", jobName)
 	rows.Next()
-	settings := TimeBasedJob{}
-	if e := rows.Scan(&settings.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.NumberOfWeeks); e != nil {
+	job := &Job{}
+	settings := TimeBasedJob{JobVal: job}
+	if e := rows.Scan(&job.JobName, pq.Array(&settings.TimeSlots), pq.Array(&settings.DaysInWeek), &settings.NumberOfWeeks); e != nil {
 		log.Fatal(e)
 	}
 	if settings.NumberOfWeeks != 1 {
@@ -266,4 +267,3 @@ func TestJobSettingDaoImpl_SaveEventBasedJob(t *testing.T) {
 		t.Errorf("Expected %s but was %s", evenName, actualEventName)
 	}
 }
-

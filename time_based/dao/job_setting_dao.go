@@ -23,11 +23,23 @@ type JobSettingDao interface {
 type JobSettingDaoImpl struct{}
 
 type TimeBasedJob struct {
-	JobName       string
+	JobVal        *Job
 	TimeSlots     []string
 	DaysInWeek    []string
-	FileName      string
 	NumberOfWeeks int
+}
+
+func (t *TimeBasedJob) JobName() string {
+	return t.JobVal.JobName
+}
+
+func (t *TimeBasedJob) FileName() string {
+	return t.JobVal.FileName
+}
+
+type Job struct {
+	JobName  string
+	FileName string
 }
 
 var db *sql.DB
@@ -88,11 +100,12 @@ func (j *JobSettingDaoImpl) GetJobsFor(day string) []TimeBasedJob {
 	}
 	jobs := make([]TimeBasedJob, 0)
 	for rows.Next() {
-		j := TimeBasedJob{}
-		if e = rows.Scan(&j.JobName, pq.Array(&j.TimeSlots), pq.Array(&j.DaysInWeek), &j.FileName, &j.NumberOfWeeks); e != nil {
+		job := &Job{}
+		timeBasedJob := TimeBasedJob{JobVal: job}
+		if e = rows.Scan(&job.JobName, pq.Array(&timeBasedJob.TimeSlots), pq.Array(&timeBasedJob.DaysInWeek), &job.FileName, &timeBasedJob.NumberOfWeeks); e != nil {
 			log.Fatalf("%v\n", e)
 		}
-		jobs = append(jobs, j)
+		jobs = append(jobs, timeBasedJob)
 	}
 	return jobs
 }
