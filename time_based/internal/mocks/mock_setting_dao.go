@@ -85,6 +85,20 @@ func (mr *MockJobSettingDaoMockRecorder) GetJobsFor(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJobsFor", reflect.TypeOf((*MockJobSettingDao)(nil).GetJobsFor), arg0)
 }
 
+// GetJobsForEvent mocks base method
+func (m *MockJobSettingDao) GetJobsForEvent(arg0 string) []dao.Job {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetJobsForEvent", arg0)
+	ret0, _ := ret[0].([]dao.Job)
+	return ret0
+}
+
+// GetJobsForEvent indicates an expected call of GetJobsForEvent
+func (mr *MockJobSettingDaoMockRecorder) GetJobsForEvent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJobsForEvent", reflect.TypeOf((*MockJobSettingDao)(nil).GetJobsForEvent), arg0)
+}
+
 // SaveEventBasedJob mocks base method
 func (m *MockJobSettingDao) SaveEventBasedJob(arg0, arg1, arg2 string) {
 	m.ctrl.T.Helper()

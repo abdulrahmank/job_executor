@@ -176,15 +176,18 @@ func TestJobSettingDaoImpl_DeleteJob(t *testing.T) {
 	dao := JobSettingDaoImpl{}
 	jobName := "1"
 	dao.SaveTimedJob(jobName, "08:00PM,10:00AM", "mon,wed,thu", "1.sh", 2)
+	dao.SaveEventBasedJob(jobName, "1.sh", "event")
 
 	dao.DeleteJob(jobName)
 
 	rows, _ := db.Query("SELECT COUNT(*) FROM job WHERE job_name = '1'")
 	settingRows, _ := db.Query("SELECT COUNT(*) FROM time_settings WHERE job_name = '1'")
 	statusRows, _ := db.Query("SELECT COUNT(*) FROM job_status WHERE job_name = '1'")
+	eventJobMappingRows, _ := db.Query("SELECT COUNT(*) FROM event_job_mappings WHERE job_name = '1'")
 	rows.Next()
 	statusRows.Next()
 	settingRows.Next()
+	eventJobMappingRows.Next()
 
 	var count int
 	if e := rows.Scan(&count); e != nil {
@@ -200,6 +203,12 @@ func TestJobSettingDaoImpl_DeleteJob(t *testing.T) {
 		t.Errorf("Expected %d but was %d", 0, count)
 	}
 	if e := settingRows.Scan(&count); e != nil {
+		log.Fatal(e)
+	}
+	if count != 0 {
+		t.Errorf("Expected %d but was %d", 0, count)
+	}
+	if e := eventJobMappingRows.Scan(&count); e != nil {
 		log.Fatal(e)
 	}
 	if count != 0 {

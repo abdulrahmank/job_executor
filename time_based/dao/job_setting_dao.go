@@ -148,6 +148,10 @@ func (j *JobSettingDaoImpl) DeleteJob(jobName string) {
 	if e != nil {
 		log.Panicf("%v\n", e)
 	}
+	_, e = db.Exec("DELETE FROM event_job_mappings WHERE job_name=$1", jobName)
+	if e != nil {
+		log.Panicf("%v\n", e)
+	}
 }
 
 func (j *JobSettingDaoImpl) GetFileName(jobName string) string {
